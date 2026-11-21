@@ -1,0 +1,35 @@
+{
+  "name": "sarichain-panel",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lllidon/sarichain-panel.git"
+  },
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/lllidon/sarichain-panel/issues"
+  },
+  "homepage": "https://github.com/lllidon/sarichain-panel#readme",
+  "dependencies": {
+    "lucide-react": "^1.77.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
