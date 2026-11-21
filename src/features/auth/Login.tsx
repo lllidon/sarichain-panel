@@ -12,12 +12,12 @@ export default function Login({ onLogin, onDemo }: { onLogin: (token: string) =>
     setMessage('');
     const data = new FormData(event.currentTarget);
     try {
-      const response = await login(String(data.get('phone')), String(data.get('password')));
+      const response = await login(String(data.get('identifier')).trim(), String(data.get('password')));
       onLogin(response.accessToken);
     } catch (error) {
       const status = error instanceof ApiError ? error.status : 0;
-      if (status === 401) setMessage('شماره موبایل یا رمز عبور صحیح نیست.');
-      else if (status === 400) setMessage('شماره موبایل و رمز عبور را بررسی کنید.');
+      if (status === 401) setMessage('شناسه ورود یا رمز عبور صحیح نیست.');
+      else if (status === 400) setMessage('نام کاربری یا شماره موبایل و رمز عبور را بررسی کنید.');
       else if (status === 429) setMessage('تعداد تلاش‌ها زیاد است. کمی بعد دوباره امتحان کنید.');
       else setMessage('ارتباط با بک‌اند برقرار نشد.');
     } finally {
@@ -32,7 +32,7 @@ export default function Login({ onLogin, onDemo }: { onLogin: (token: string) =>
         <h1>ورود به پنل ساری چین</h1>
         <p>با حساب بک‌اند خود وارد شوید.</p>
         <form onSubmit={submit}>
-          <label>شماره موبایل<input name="phone" type="tel" dir="ltr" autoComplete="username" placeholder="09123456789" required /></label>
+          <label>نام کاربری یا شماره موبایل<input name="identifier" type="text" dir="ltr" autoComplete="username" autoCapitalize="none" placeholder="milad" required /></label>
           <label>رمز عبور<input name="password" type="password" dir="ltr" autoComplete="current-password" required /></label>
           {message && <p role="alert" className="error-message">{message}</p>}
           <button className="primary-button" type="submit" disabled={busy}>{busy ? 'در حال ورود…' : 'ورود به پنل'} <ArrowLeft size={16} /></button>

@@ -12,11 +12,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return response.json();
 }
 
-export function login(phone: string, password: string) {
+export function login(identifier: string, password: string) {
+  const identity = /^[a-z]/i.test(identifier) ? { username: identifier } : { phone: identifier };
   return request<{ accessToken: string }>('/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phone, password }),
+    body: JSON.stringify({ ...identity, password }),
   });
 }
 
