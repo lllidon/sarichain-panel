@@ -167,3 +167,11 @@ td svg { vertical-align: middle; color: var(--muted); }
 .tag-chips button { padding: 0; border: 0; background: transparent; }
 .tag-choices button { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; }
 @media (max-width: 480px) { .editor-fields { grid-template-columns: minmax(0, 1fr); } }
+
+.members-menu { margin-top: 25px; }
+.member-organization { display: block; font-weight: 400; color: var(--muted); }
+.member-row-actions button:last-child { color: var(--green); }
+@media (max-width: 740px) {
+  .members-menu { margin-top: 0; width: 100%; border-top: 1px solid var(--line); padding-top: 4px; }
+  .members-menu h2 { display: block; align-self: center; margin: 0; padding-inline: 3px 5px; }
+}

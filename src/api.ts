@@ -1,3 +1,4 @@
+import type { Member, MemberGroup, MemberPage } from './features/members/members';
 import { type CatalogPage, type Section, type NamedRecord, pageSize } from './features/catalog/catalog';
 
 export class ApiError extends Error {
@@ -70,4 +71,15 @@ export function saveCatalog(section: Section, token: string, data: object, id?: 
 
 export function deleteCatalog(section: Section, token: string, id: string) {
   return write<void>(`/catalog/${section}/${id}`, 'DELETE', token);
+}
+
+export function readMembers(group: MemberGroup, token: string, search: string, page: number, signal: AbortSignal) {
+  const query = new URLSearchParams({ search, page: String(page), limit: String(pageSize) });
+  return request<MemberPage>(`/members/${group}?${query}`, {
+    signal, headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function saveMember(group: MemberGroup, token: string, fields: object, id?: string) {
+  return write<Member>(`/members/${group}${id ? '/' + id : ''}`, id ? 'PATCH' : 'POST', token, fields);
 }
