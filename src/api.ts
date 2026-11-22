@@ -1,3 +1,4 @@
+import type { Supplier, SupplierPage } from './features/directory/suppliers';
 import type { Member, MemberGroup, MemberPage } from './features/members/members';
 import { type CatalogPage, type Section, type NamedRecord, pageSize } from './features/catalog/catalog';
 
@@ -82,4 +83,15 @@ export function readMembers(group: MemberGroup, token: string, search: string, p
 
 export function saveMember(group: MemberGroup, token: string, fields: object, id?: string) {
   return write<Member>(`/members/${group}${id ? '/' + id : ''}`, id ? 'PATCH' : 'POST', token, fields);
+}
+
+export function listSuppliers(token: string, filters: Record<string, string>, page: number, manage: boolean, signal: AbortSignal) {
+  const params = new URLSearchParams({ ...filters, page: String(page), limit: String(pageSize) });
+  return request<SupplierPage>(`/directory/material-suppliers${manage ? '/manage' : ''}?${params}`, {
+    signal, headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function saveSupplier(token: string, fields: object, id?: string) {
+  return write<Supplier>(`/directory/material-suppliers${id ? '/' + id : ''}`, id ? 'PATCH' : 'POST', token, fields);
 }

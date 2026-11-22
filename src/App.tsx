@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { LogOut, Moon, Sun } from 'lucide-react';
+import { BookUser, LogOut, Moon, Sun } from 'lucide-react';
 import Login from './features/auth/Login';
 import CatalogView from './features/catalog/CatalogView';
+import SuppliersView from './features/directory/SuppliersView';
 import MembersView from './features/members/MembersView';
 import { type MemberGroup, memberSections } from './features/members/members';
 import { type Section, sections } from './features/catalog/catalog';
@@ -9,8 +10,9 @@ import { type Section, sections } from './features/catalog/catalog';
 const tokenKey = 'sarichain-panel-token';
 const demoKey = 'sarichain-panel-demo';
 
-function getSection(): Section | MemberGroup {
+function getSection(): Section | MemberGroup | 'directory' {
   const section = location.hash.slice(1);
+  if (section === 'directory') return section;
   if (Object.hasOwn(memberSections, section)) return section as MemberGroup;
   return Object.hasOwn(sections, section) ? section as Section : 'products';
 }
@@ -64,7 +66,8 @@ export default function App() {
 
   const signedIn = Boolean(token || demo);
   const isMembers = Object.hasOwn(memberSections, section);
-  const current = isMembers ? memberSections[section as MemberGroup] : sections[section as Section];
+  const isDirectory = section === 'directory';
+  const current = isDirectory ? { label: 'مواد اولیه' } : isMembers ? memberSections[section as MemberGroup] : sections[section as Section];
   return (
     <div className={signedIn ? 'shell' : 'shell logged-out'}>
       {signedIn && (
@@ -84,12 +87,16 @@ export default function App() {
               return <a key={key} href={`#${key}`} aria-current={section === key ? 'page' : undefined}><Icon size={18} />{label}</a>;
             })}
           </nav>
+          <nav className="sidebar-menu members-menu" aria-label="معرفی">
+            <h2>معرفی</h2>
+            <a href="#directory" aria-current={isDirectory ? 'page' : undefined}><BookUser size={18} /> مواد اولیه</a>
+          </nav>
         </aside>
       )}
       <div className="main-column">
         <header className="topbar">
           {!signedIn ? <a href="./" className="identity"><img src="/img/logo.png" alt="" /><span>پنل ساری چین</span></a>
-            : <span className="header-context">{isMembers ? 'اعضا' : 'کاتالوگ'} <span aria-hidden="true">/</span> {current.label}</span>}
+            : <span className="header-context">{isDirectory ? 'معرفی' : isMembers ? 'اعضا' : 'کاتالوگ'} <span aria-hidden="true">/</span> {current.label}</span>}
           <div className="header-actions">
             {signedIn && <span className={demo ? 'mode demo' : 'mode'}>{demo ? 'داده آزمایشی' : 'داده بک‌اند'}</span>}
             <button className="icon-button" type="button" aria-label={dark ? 'تم روشن' : 'تم تیره'} title={dark ? 'تم روشن' : 'تم تیره'} onClick={() => setDark(value => !value)}>
@@ -100,7 +107,9 @@ export default function App() {
         </header>
         {expired && <p className="session-alert" role="status">نشست شما پایان یافت. دوباره وارد شوید.</p>}
         {signedIn
-          ? isMembers
+          ? isDirectory
+            ? <SuppliersView token={token} onExpired={expire} />
+            : isMembers
             ? <MembersView key={section} group={section as MemberGroup} token={token} onExpired={expire} />
             : <CatalogView key={section} section={section as Section} token={token} onExpired={expire} />
           : <Login onLogin={openLive} onDemo={openDemo} />}
