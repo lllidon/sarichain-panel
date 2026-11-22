@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { ArrowDownRight, ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
+import { ArrowDownRight, ChevronLeft, ChevronRight, Pencil, Plus, Search, Trash2, X, Zap } from 'lucide-react';
 import { ApiError, readCatalog } from '../../api';
 import { type CatalogItem, type CatalogPage, type Section, number, sections } from './catalog';
+import CatalogEditor, { type EditorMode } from './CatalogEditor';
 import { demoPage } from './demo';
 
 const headings = {
@@ -19,7 +20,9 @@ function price(item: CatalogItem) {
   return '—';
 }
 
-function CatalogRow({ item, section, demo }: { item: CatalogItem; section: Section; demo: boolean }) {
+function CatalogRow({ item, section, demo, onEdit }: {
+  item: CatalogItem; section: Section; demo: boolean; onEdit: (mode: EditorMode, item: CatalogItem) => void;
+}) {
   const Icon = sections[section].icon;
   const [failed, setFailed] = useState(false);
   const image = item.thumbnailUrl || item.imageUrl;
@@ -29,7 +32,9 @@ function CatalogRow({ item, section, demo }: { item: CatalogItem; section: Secti
       <th scope="row">
         <div className="item-name">
           <span className="item-image">{source && !failed ? <img src={source} alt="" loading="lazy" onError={() => setFailed(true)} /> : <Icon size={18} />}</span>
-          <span>{item.name}</span>
+          <span>{item.name}
+            {!!item.tagIds?.length && <small className="row-tags">{item.tagIds.map(tag => tag.name).join('، ')}</small>}
+          </span>
         </div>
       </th>
       {section === 'products' && (
@@ -49,6 +54,13 @@ function CatalogRow({ item, section, demo }: { item: CatalogItem; section: Secti
       )}
       {section === 'brands' && <td>{item.shortDescription || '—'}</td>}
       <td><span className={item.isActive ? 'status active' : 'status'}>{item.isActive ? 'فعال' : 'غیرفعال'}</span></td>
+      {!demo && <td>
+        <div className="row-actions">
+          <button type="button" title="ویرایش سریع" aria-label={`ویرایش سریع ${item.name}`} onClick={() => onEdit('quick', item)}><Zap size={15} /></button>
+          <button type="button" title="ویرایش کامل" aria-label={`ویرایش کامل ${item.name}`} onClick={() => onEdit('edit', item)}><Pencil size={15} /></button>
+          <button type="button" title="حذف" aria-label={`حذف ${item.name}`} onClick={() => onEdit('delete', item)}><Trash2 size={15} /></button>
+        </div>
+      </td>}
     </tr>
   );
 }
@@ -60,6 +72,8 @@ export default function CatalogView({ section, token, onExpired }: { section: Se
   const [data, setData] = useState<CatalogPage | null>(null);
   const [error, setError] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [editor, setEditor] = useState<{ mode: EditorMode; item?: CatalogItem } | null>(null);
+  const [notice, setNotice] = useState('');
   const demo = token === null;
   const result = demo ? demoPage(section, search, page) : data;
   const pages = result ? Math.min(10000, Math.max(1, Math.ceil(result.total / result.limit))) : 1;
@@ -80,6 +94,22 @@ export default function CatalogView({ section, token, onExpired }: { section: Se
     return () => controller.abort();
   }, [section, search, page, token, retry, onExpired]);
 
+  function edit(mode: EditorMode, item?: CatalogItem) {
+    setNotice('');
+    setEditor({ mode, item });
+  }
+
+  function saved() {
+    if (editor?.mode === 'delete' && result?.items.length === 1 && page > 1) setPage(page - 1);
+    if (editor?.mode === 'create') {
+      setDraft('');
+      setSearch('');
+    }
+    setNotice(editor?.mode === 'delete' ? 'رکورد حذف شد.' : 'تغییرات ذخیره شد.');
+    setEditor(null);
+    setRetry(value => value + 1);
+  }
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSearch(draft.trim());
@@ -91,7 +121,9 @@ export default function CatalogView({ section, token, onExpired }: { section: Se
       <div className="page-heading">
         <div className="page-icon"><Icon size={25} /></div>
         <div><h1>{sections[section].label}</h1><p>کاتالوگ ساری چین</p></div>
+        {token && <button type="button" className="add-record" onClick={() => edit('create')}><Plus size={17} /> افزودن</button>}
       </div>
+      {notice && <p className="catalog-notice" role="status">{notice}</p>}
       <section className="table-card" aria-label={`فهرست ${sections[section].label}`}>
         <div className="table-toolbar">
           <form className="search" onSubmit={submit}>
@@ -118,8 +150,8 @@ export default function CatalogView({ section, token, onExpired }: { section: Se
         ) : (
           <div className="table-scroll" tabIndex={0} aria-label="جدول کاتالوگ">
             <table>
-              <thead><tr>{headings[section].map(heading => <th scope="col" key={heading}>{heading}</th>)}</tr></thead>
-              <tbody>{result.items.map(item => <CatalogRow key={item._id} item={item} section={section} demo={demo} />)}</tbody>
+              <thead><tr>{headings[section].map(heading => <th scope="col" key={heading}>{heading}</th>)}{!demo && <th scope="col">عملیات</th>}</tr></thead>
+              <tbody>{result.items.map(item => <CatalogRow key={item._id} item={item} section={section} demo={demo} onEdit={edit} />)}</tbody>
             </table>
           </div>
         )}
@@ -131,6 +163,10 @@ export default function CatalogView({ section, token, onExpired }: { section: Se
           </nav>
         )}
       </section>
+      {token && editor && (
+        <CatalogEditor section={section} mode={editor.mode} item={editor.item} token={token}
+          onClose={() => setEditor(null)} onSaved={saved} onExpired={onExpired} />
+      )}
     </main>
   );
 }

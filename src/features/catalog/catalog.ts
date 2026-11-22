@@ -7,7 +7,8 @@ export const sections = {
 };
 
 export type Section = keyof typeof sections;
-type Reference = { _id: string; name: string } | null;
+export type NamedRecord = { _id: string; name: string };
+type Reference = NamedRecord | null;
 
 export type CatalogItem = {
   _id: string;
@@ -17,6 +18,14 @@ export type CatalogItem = {
   thumbnailUrl?: string;
   imageUrl?: string;
   shortDescription?: string;
+  description?: string;
+  tagIds?: NamedRecord[];
+  options?: { name: string; value: string }[];
+  physical?: {
+    standardDensityKgM3?: number;
+    shippingWeightG?: number;
+    shippingDimensions?: { lengthMm: number; widthMm: number; heightMm: number };
+  };
   sku?: string;
   itemId?: string;
   kind?: 'master' | 'variant';
