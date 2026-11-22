@@ -32,29 +32,39 @@ function CatalogRow({ item, section, demo, canEdit, onEdit }: {
       <th scope="row">
         <div className="item-name">
           <span className="item-image">{source && !failed ? <img src={source} alt="" loading="lazy" onError={() => setFailed(true)} /> : <Icon size={18} />}</span>
-          <span>{item.name}
-            {!!item.tagIds?.length && <small className="row-tags">{item.tagIds.map(tag => tag.name).join('، ')}</small>}
+          <span className="compact-item-text"><span className="compact-name" title={item.name}>{item.name}</span>
+            {section === 'products' && <span className="mobile-only compact-details">
+              <small>{item.categoryId?.name || '—'}</small>
+              <small><bdi>{item.sku || '—'}</bdi></small>
+            </span>}
+            {section === 'categories' && <span className="mobile-only compact-details">
+              <small>{item.parentId?.name || 'دسته اصلی'}{item.level ? ` · سطح ${number.format(item.level)}` : ''}</small>
+              <small><bdi>{item.slug}</bdi></small>
+            </span>}
+            {section === 'brands' && <span className="mobile-only compact-details"><small><bdi>{item.slug}</bdi></small></span>}
+            {!!item.tagIds?.length && <small className="row-tags desktop-only">{item.tagIds.map(tag => tag.name).join('، ')}</small>}
           </span>
         </div>
       </th>
       {section === 'products' && (
         <>
-          <td><bdi className="code">{item.sku || '—'}</bdi>{item.itemId && <small><bdi>{item.itemId}</bdi></small>}</td>
-          <td>{item.categoryId?.name || '—'}{item.brandId && <small>{item.brandId.name}</small>}</td>
-          <td>{item.kind === 'variant' ? 'گزینه محصول' : 'اصلی'}{item.masterId && <small>{item.masterId.name}</small>}</td>
-          <td>{price(item)}</td>
+          <td className="desktop-only"><bdi className="code">{item.sku || '—'}</bdi>{item.itemId && <small><bdi>{item.itemId}</bdi></small>}</td>
+          <td className="desktop-only">{item.categoryId?.name || '—'}{item.brandId && <small>{item.brandId.name}</small>}</td>
+          <td className="desktop-only">{item.kind === 'variant' ? 'گزینه محصول' : 'اصلی'}{item.masterId && <small>{item.masterId.name}</small>}</td>
+          <td className="desktop-only">{price(item)}</td>
         </>
       )}
-      {section !== 'products' && <td><bdi className="code">{item.slug}</bdi></td>}
+      {section !== 'products' && <td className="desktop-only"><bdi className="code">{item.slug}</bdi></td>}
       {section === 'categories' && (
         <>
-          <td>{item.parentId ? <><ArrowDownRight size={14} /> {item.parentId.name}</> : '—'}</td>
-          <td>{item.level ? number.format(item.level) : '—'}</td>
+          <td className="desktop-only">{item.parentId ? <><ArrowDownRight size={14} /> {item.parentId.name}</> : '—'}</td>
+          <td className="desktop-only">{item.level ? number.format(item.level) : '—'}</td>
         </>
       )}
-      {section === 'brands' && <td>{item.shortDescription || '—'}</td>}
-      <td><span className={item.isActive ? 'status active' : 'status'}>{item.isActive ? 'فعال' : 'غیرفعال'}</span></td>
-      {canEdit && <td>
+      {section === 'brands' && <td className="desktop-only">{item.shortDescription || '—'}</td>}
+      <td className="compact-summary">{section === 'products' && <span className="mobile-only compact-price">{price(item)}</span>}
+        <span className={item.isActive ? 'status active' : 'status'}>{item.isActive ? 'فعال' : 'غیرفعال'}</span></td>
+      {canEdit && <td className="compact-actions catalog-actions">
         <div className="row-actions">
           <button type="button" title="ویرایش سریع" aria-label={`ویرایش سریع ${item.name}`} onClick={() => onEdit('quick', item)}><Zap size={15} /></button>
           <button type="button" title="ویرایش کامل" aria-label={`ویرایش کامل ${item.name}`} onClick={() => onEdit('edit', item)}><Pencil size={15} /></button>
@@ -149,8 +159,12 @@ export default function CatalogView({ section, token, canEdit, onExpired }: { se
           </div>
         ) : (
           <div className="table-scroll" tabIndex={0} aria-label="جدول کاتالوگ">
-            <table>
-              <thead><tr>{headings[section].map(heading => <th scope="col" key={heading}>{heading}</th>)}{canEdit && <th scope="col">عملیات</th>}</tr></thead>
+            <table className="compact-table">
+              <thead><tr>{headings[section].map((heading, index, columns) => (
+                <th scope="col" key={heading} className={index === 0 ? '' : index === columns.length - 1 ? 'compact-summary' : 'desktop-only'}>
+                  {section === 'products' && index === columns.length - 1 ? <><span className="desktop-only">وضعیت</span><span className="mobile-only">قیمت / وضعیت</span></> : heading}
+                </th>
+              ))}{canEdit && <th scope="col" className="compact-actions catalog-actions">عملیات</th>}</tr></thead>
               <tbody>{result.items.map(item => <CatalogRow key={item._id} item={item} section={section} demo={demo} canEdit={canEdit} onEdit={edit} />)}</tbody>
             </table>
           </div>

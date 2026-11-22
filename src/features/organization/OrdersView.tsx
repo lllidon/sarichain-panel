@@ -33,10 +33,12 @@ export default function OrdersView({ token, onExpired }: { token: string; onExpi
           : !data ? <div className="table-state" role="status">در حال دریافت سفارش‌ها…</div>
           : !data.items.length ? <div className="table-state">سفارشی برای نمایش وجود ندارد.</div>
           : <div className="table-scroll" tabIndex={0} aria-label="جدول سفارش‌ها">
-            <table><thead><tr><th scope="col">شماره سفارش</th><th scope="col">شعبه</th><th scope="col">وضعیت</th><th scope="col">تاریخ</th></tr></thead>
+            <table className="compact-table"><thead><tr><th scope="col">شماره سفارش</th><th scope="col" className="desktop-only">شعبه</th><th scope="col" className="compact-summary">وضعیت</th><th scope="col" className="compact-summary">تاریخ</th></tr></thead>
               <tbody>{data.items.map(order => <tr key={order._id}>
-                <th scope="row"><bdi>{order.number}</bdi></th><td>{order.branchId?.name ?? '—'}</td>
-                <td>{order.status}</td><td>{order.createdAt && Number.isFinite(Date.parse(order.createdAt)) ? dates.format(Date.parse(order.createdAt)) : '—'}</td>
+                <th scope="row"><bdi className="compact-name">{order.number}</bdi>
+                  <span className="mobile-only compact-details"><small>{order.branchId?.name ?? '—'}</small></span>
+                </th><td className="desktop-only">{order.branchId?.name ?? '—'}</td>
+                <td className="compact-summary">{order.status}</td><td className="compact-summary">{order.createdAt && Number.isFinite(Date.parse(order.createdAt)) ? dates.format(Date.parse(order.createdAt)) : '—'}</td>
               </tr>)}</tbody></table>
           </div>}
         {pages > 1 && <nav className="pagination" aria-label="صفحه‌بندی سفارش‌ها">

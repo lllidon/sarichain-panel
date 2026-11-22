@@ -76,9 +76,9 @@ export default function MembersView({ group, token, access, onExpired }: { group
           : !data ? <div className="table-state" role="status">در حال دریافت اعضا…</div>
           : !data.items.length ? <div className="table-state">{search ? 'عضوی با این جستجو پیدا نشد.' : 'عضوی برای نمایش وجود ندارد.'}</div> : (
             <div className="table-scroll" tabIndex={0} aria-label="جدول اعضا">
-              <table>
-                <thead><tr><th scope="col">نام</th><th scope="col">موبایل</th><th scope="col">{section.typeLabel}</th>{users && <th scope="col">نقش دسترسی</th>}
-                  <th scope="col">شعبه</th>{users && <th scope="col">پروفایل</th>}<th scope="col">شهر</th><th scope="col">وضعیت</th><th scope="col">عملیات</th></tr></thead>
+              <table className="compact-table">
+                <thead><tr><th scope="col">نام</th><th scope="col" className="compact-summary">موبایل</th><th scope="col" className="desktop-only">{section.typeLabel}</th>{users && <th scope="col" className="desktop-only">نقش دسترسی</th>}
+                  <th scope="col" className="desktop-only">شعبه</th>{users && <th scope="col" className="desktop-only">پروفایل</th>}<th scope="col" className="desktop-only">شهر</th><th scope="col" className="desktop-only">وضعیت</th><th scope="col" className="compact-actions">عملیات</th></tr></thead>
                 <tbody>{data.items.map((member, index) => {
                   const name = member.fullName || member.username || member.phone || 'عضو';
                   const branchHeader = users && access?.role === 'management' &&
@@ -87,15 +87,22 @@ export default function MembersView({ group, token, access, onExpired }: { group
                   return <Fragment key={member._id}>
                     {branchHeader && <tr className="member-branch-row"><th scope="rowgroup" colSpan={9}>{member.branchId?.name || 'مدیریت مرکزی / بدون شعبه'}</th></tr>}
                     <tr>
-                    <th scope="row">{name}{member.organization && <small className="member-organization">{member.organization}</small>}</th>
-                    <td><bdi>{member.phone || '—'}</bdi></td>
-                    <td>{(section.types as Record<string, string>)[member.type ?? ''] || '—'}</td>
-                    {users && <td>{roleLabels[member.role ?? 'client']}</td>}
-                    <td>{member.branchId?.name || '—'}</td>
-                    {users && <td>{member.profileId?.name || '—'}</td>}
-                    <td>{member.city || '—'}</td>
-                    <td><span className={member.isActive === false ? 'status' : 'status active'}>{member.isActive === false ? 'غیرفعال' : 'فعال'}</span></td>
-                    <td>{canEdit && <div className="row-actions member-row-actions"><button type="button" title="ویرایش" aria-label={`ویرایش ${name}`}
+                    <th scope="row"><span className="compact-name" title={name}>{name}</span>
+                      <span className="mobile-only compact-details">
+                        <small>{users ? roleLabels[member.role ?? 'client'] : (section.types as Record<string, string>)[member.type ?? '']}</small>
+                        {(member.branchId?.name || member.city) && <small>{member.branchId?.name || member.city}</small>}
+                      </span>
+                      {member.organization && <small className="member-organization desktop-only">{member.organization}</small>}</th>
+                    <td className="compact-summary"><bdi>{member.phone || '—'}</bdi>
+                      <span className="mobile-only"><span className={member.isActive === false ? 'status' : 'status active'}>{member.isActive === false ? 'غیرفعال' : 'فعال'}</span></span>
+                    </td>
+                    <td className="desktop-only">{(section.types as Record<string, string>)[member.type ?? ''] || '—'}</td>
+                    {users && <td className="desktop-only">{roleLabels[member.role ?? 'client']}</td>}
+                    <td className="desktop-only">{member.branchId?.name || '—'}</td>
+                    {users && <td className="desktop-only">{member.profileId?.name || '—'}</td>}
+                    <td className="desktop-only">{member.city || '—'}</td>
+                    <td className="desktop-only"><span className={member.isActive === false ? 'status' : 'status active'}>{member.isActive === false ? 'غیرفعال' : 'فعال'}</span></td>
+                    <td className="compact-actions">{canEdit && <div className="row-actions member-row-actions"><button type="button" title="ویرایش" aria-label={`ویرایش ${name}`}
                       onClick={() => { setNotice(''); setEditor({ member }); }}><Pencil size={15} /></button></div>}</td>
                   </tr></Fragment>;
                 })}</tbody>

@@ -106,19 +106,7 @@ td svg { vertical-align: middle; color: var(--muted); }
 .demo-button { width: 100%; margin-top: 13px; padding: 7px; border: 1px solid var(--line); border-radius: 8px; background: var(--accent); color: var(--green); }
 .login-card .error-message { color: var(--error); }
 .session-alert { text-align: center; color: var(--error); padding-top: 12px; }
-@media (max-width: 740px) {
-  .shell { grid-template-columns: minmax(0, 1fr); }
-  .sidebar { display: flex; flex-wrap: wrap; gap: 7px; padding: 7px 11px; border-inline-end: 0; border-bottom: 1px solid var(--line); }
-  .sidebar .identity { margin: 0; }
-  .sidebar-menu { margin: 0; display: flex; flex-wrap: wrap; gap: 3px; }
-  .sidebar-menu h2 { display: none; }
-  .sidebar-menu a { min-height: 37px; gap: 4px; padding: 4px 7px; font-size: 12px; }
-  .sidebar-menu svg { width: 15px; }
-  .topbar { min-height: 52px; }
-  .workspace { padding-top: 10px; }
-  .table-toolbar { padding: 9px; }
-  th, td { padding-inline: 10px; }
-}
+
 
 .add-record, .save-button, .danger-button {
   display: inline-flex; align-items: center; justify-content: center; gap: 5px;
@@ -171,10 +159,7 @@ td svg { vertical-align: middle; color: var(--muted); }
 .members-menu { margin-top: 25px; }
 .member-organization { display: block; font-weight: 400; color: var(--muted); }
 .member-row-actions button:last-child { color: var(--green); }
-@media (max-width: 740px) {
-  .members-menu { margin-top: 0; width: 100%; border-top: 1px solid var(--line); padding-top: 4px; }
-  .members-menu h2 { display: block; align-self: center; margin: 0; padding-inline: 3px 5px; }
-}
+
 
 .directory-filters { display: flex; gap: 6px; flex-wrap: wrap; }
 .directory-filters input, .directory-filters button {
@@ -200,3 +185,64 @@ td svg { vertical-align: middle; color: var(--muted); }
 
 .location-fields { padding: 8px; border: 1px solid var(--line); border-radius: 8px; }
 .location-fields legend { padding-inline: 4px; color: var(--green); font-size: 12px; }
+
+.header-start { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.header-actions { flex: none; }
+.mobile-menu-trigger, .mobile-navigation, .mobile-only { display: none; }
+
+@media (max-width: 860px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .sidebar { display: none; }
+  .main-column { min-width: 0; }
+  .topbar { min-height: 52px; padding: 8px 11px; }
+  .header-context { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mobile-menu-trigger { display: grid; flex: none; }
+  .mobile-navigation[open] {
+    display: block; position: fixed; inset: 0 0 0 auto; margin: 0;
+    width: min(300px, 88vw); height: 100dvh; max-height: none;
+    padding: 14px; border: 0; border-inline-end: 1px solid var(--line);
+    background: var(--surface); color: var(--text); overflow-y: auto;
+  }
+  .mobile-navigation::backdrop { background: #14251baa; }
+  .mobile-navigation-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .mobile-navigation .sidebar-menu { margin-top: 16px; }
+  .mobile-navigation .sidebar-menu a { min-height: 44px; }
+  .workspace { padding: 10px 10px 36px; }
+  .page-heading { padding-block: 8px 12px; gap: 8px; }
+  .page-icon { flex: none; width: 39px; height: 39px; }
+  .page-heading h1 { font-size: clamp(18px, 4.5vw, 25px); }
+  .page-heading p { font-size: 11px; }
+  .add-record { white-space: nowrap; flex: none; padding-inline: 8px; font-size: 12px; }
+  .table-toolbar { padding: 8px; }
+  .record-count { font-size: 10px; }
+  .table-scroll { overflow: visible; }
+
+  .compact-table { table-layout: fixed; font-size: 12px; }
+  .compact-table .desktop-only { display: none; }
+  .mobile-only { display: block; }
+  .compact-table th, .compact-table td { padding: 7px 6px; white-space: normal; overflow-wrap: anywhere; }
+  .compact-table thead th { font-size: 10px; }
+  .compact-table .compact-summary { width: 27%; }
+  .compact-table .compact-actions { width: 44px; text-align: center; }
+  .compact-table .catalog-actions { width: 88px; }
+  .compact-table .item-name { gap: 5px; align-items: flex-start; }
+  .compact-table .item-image { width: 30px; height: 30px; border-radius: 6px; }
+  .compact-item-text { display: block; min-width: 0; }
+  .compact-name { display: block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+  .compact-details small { display: block; color: var(--muted); font-size: 10px; font-weight: 400; line-height: 1.55; }
+  .compact-price { color: var(--text); font-size: 10px; font-weight: 700; }
+  .compact-summary .status { font-size: 9px; padding: 1px 5px; }
+  .compact-summary .status::before { width: 4px; height: 4px; }
+  .compact-actions .row-actions { justify-content: center; gap: 3px; }
+  .compact-actions .row-actions button { width: 23px; height: 27px; padding: 3px; }
+  .compact-actions .row-actions button svg { width: 13px; height: 13px; }
+  .compact-actions .icon-button { width: 28px; height: 28px; }
+  .directory-filters input { flex: 1 1 90px; width: auto; min-width: 0; font-size: 11px; }
+}
+
+@media (max-width: 375px) {
+  .header-actions { gap: 4px; }
+  .topbar .icon-button { width: 31px; height: 34px; }
+  .mode { padding-inline: 4px; }
+  .compact-table .item-image { width: 25px; height: 25px; }
+}

@@ -147,21 +147,25 @@ export default function SuppliersView({ token, onExpired }: { token: string | nu
           : !data ? <div className="table-state" role="status">در حال دریافت…</div>
           : !data.items.length ? <div className="table-state">تأمین‌کننده‌ای پیدا نشد.</div>
           : <div className="table-scroll" tabIndex={0} aria-label="جدول تأمین‌کنندگان">
-            <table>
-              <thead><tr><th scope="col">تأمین‌کننده</th><th scope="col">محدوده</th><th scope="col">تماس</th><th scope="col">تگ‌ها</th>
-                {manage && <><th scope="col">اولویت / بازخورد</th><th scope="col">انتشار</th><th scope="col">عملیات</th></>}</tr></thead>
+            <table className="compact-table">
+              <thead><tr><th scope="col">تأمین‌کننده</th><th scope="col" className="desktop-only">محدوده</th><th scope="col" className="compact-summary">تماس</th><th scope="col" className="desktop-only">تگ‌ها</th>
+                {manage && <><th scope="col" className="desktop-only">اولویت / بازخورد</th><th scope="col" className="desktop-only">انتشار</th><th scope="col" className="compact-actions">عملیات</th></>}</tr></thead>
               <tbody>{data.items.map(supplier => <tr key={supplier._id}>
-                <th scope="row">{supplier.name}<small className="member-organization">{supplier.contactName}</small></th>
-                <td>{supplier.city}، {supplier.province}<small>{supplier.address}</small></td>
-                <td><a href={`tel:${supplier.phone}`}><bdi>{supplier.phone}</bdi></a>
-                  {supplier.alternatePhone && <small><a href={`tel:${supplier.alternatePhone}`}><bdi>{supplier.alternatePhone}</bdi></a></small>}
-                  {supplier.email && <small><a href={`mailto:${supplier.email}`}>{supplier.email}</a></small>}
-                  {supplier.website && <small><a href={supplier.website} target="_blank" rel="noreferrer">وب‌سایت</a></small>}</td>
-                <td>{supplier.tagIds?.map(tag => tag.name).join('، ') || '—'}</td>
+                <th scope="row"><span className="compact-name" title={supplier.name}>{supplier.name}</span>
+                  <small className="member-organization desktop-only">{supplier.contactName}</small>
+                  <span className="mobile-only compact-details"><small>{supplier.city}، {supplier.province}</small>
+                    {manage && <small>{supplier.isActive ? 'منتشرشده' : 'پیش‌نویس'}</small>}</span>
+                </th>
+                <td className="desktop-only">{supplier.city}، {supplier.province}<small>{supplier.address}</small></td>
+                <td className="compact-summary"><a href={`tel:${supplier.phone}`}><bdi>{supplier.phone}</bdi></a>
+                  {supplier.alternatePhone && <small className="desktop-only"><a href={`tel:${supplier.alternatePhone}`}><bdi>{supplier.alternatePhone}</bdi></a></small>}
+                  {supplier.email && <small className="desktop-only"><a href={`mailto:${supplier.email}`}>{supplier.email}</a></small>}
+                  {supplier.website && <small className="desktop-only"><a href={supplier.website} target="_blank" rel="noreferrer">وب‌سایت</a></small>}</td>
+                <td className="desktop-only">{supplier.tagIds?.map(tag => tag.name).join('، ') || '—'}</td>
                 {manage && <>
-                  <td>{number.format(supplier.priority ?? 0)} <small>{number.format(supplier.positiveFeedbackCount ?? 0)} مثبت از {number.format(supplier.feedbackCount ?? 0)}</small></td>
-                  <td>{supplier.isActive ? 'منتشرشده' : 'پیش‌نویس'}</td>
-                  <td><button type="button" className="icon-button" aria-label={`ویرایش ${supplier.name}`} onClick={() => setEditor({ supplier })}><Pencil size={16} /></button></td>
+                  <td className="desktop-only">{number.format(supplier.priority ?? 0)} <small>{number.format(supplier.positiveFeedbackCount ?? 0)} مثبت از {number.format(supplier.feedbackCount ?? 0)}</small></td>
+                  <td className="desktop-only">{supplier.isActive ? 'منتشرشده' : 'پیش‌نویس'}</td>
+                  <td className="compact-actions"><button type="button" className="icon-button" aria-label={`ویرایش ${supplier.name}`} onClick={() => setEditor({ supplier })}><Pencil size={16} /></button></td>
                 </>}
               </tr>)}</tbody>
             </table>

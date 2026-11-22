@@ -2,8 +2,8 @@ import { readAccess, ApiError } from './api';
 import OrdersView from './features/organization/OrdersView';
 import SettingsDrawer from './features/organization/SettingsDrawer';
 import { roleLabels, type Access } from './features/organization/organization';
-import { useCallback, useEffect, useState } from 'react';
-import { BookUser, ClipboardList, LogOut, Moon, Settings, Sun } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { BookUser, ClipboardList, LogOut, Menu, Moon, Settings, Sun, X } from 'lucide-react';
 import Login from './features/auth/Login';
 import CatalogView from './features/catalog/CatalogView';
 import SuppliersView from './features/directory/SuppliersView';
@@ -33,6 +33,15 @@ export default function App() {
   const [access, setAccess] = useState<Access>();
   const [accessError, setAccessError] = useState(false);
   const [settings, setSettings] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menu = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const mobile = matchMedia('(max-width: 860px)');
+    const closeOnDesktop = () => { if (!mobile.matches) menu.current?.close(); };
+    mobile.addEventListener('change', closeOnDesktop);
+    return () => mobile.removeEventListener('change', closeOnDesktop);
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
@@ -52,6 +61,7 @@ export default function App() {
     setDemo(false);
     setAccess(undefined);
     setSettings(false);
+    setMenuOpen(false);
   }, []);
 
   const expire = useCallback(() => {
@@ -94,40 +104,64 @@ export default function App() {
   const isMembers = Object.hasOwn(memberSections, visibleSection);
   const isDirectory = visibleSection === 'directory';
   const current = isOrders ? { label: 'سفارش‌ها' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? memberSections[section as MemberGroup] : sections[section as Section];
+  const hasNavigation = signedIn && Boolean(demo || access);
+  const identity = (
+    <a href={clientOnly ? '#orders' : '#products'} className="identity"><img src="/img/logo.png" alt="" /><span>پنل ساری چین</span></a>
+  );
+  const navigation = (
+    <>
+      {token && <nav className="sidebar-menu" aria-label="سفارش‌ها">
+        <a href="#orders" aria-current={isOrders ? 'page' : undefined}><ClipboardList size={18} /> سفارش‌ها</a>
+      </nav>}
+      {!clientOnly && <>
+      <nav className="sidebar-menu members-menu" aria-label="کاتالوگ">
+        <h2>کاتالوگ</h2>
+        {(Object.keys(sections) as Section[]).map(key => {
+          const { label, icon: Icon } = sections[key];
+          return <a key={key} href={`#${key}`} aria-current={section === key ? 'page' : undefined}><Icon size={18} />{label}</a>;
+        })}
+      </nav>
+      <nav className="sidebar-menu members-menu" aria-label="اعضا">
+        <h2>اعضا</h2>
+        {(Object.keys(memberSections) as MemberGroup[]).map(key => {
+          const { label, icon: Icon } = memberSections[key];
+          return <a key={key} href={`#${key}`} aria-current={section === key ? 'page' : undefined}><Icon size={18} />{label}</a>;
+        })}
+      </nav>
+      <nav className="sidebar-menu members-menu" aria-label="معرفی">
+        <h2>معرفی</h2>
+        <a href="#directory" aria-current={isDirectory ? 'page' : undefined}><BookUser size={18} /> مواد اولیه</a>
+      </nav>
+      </>}
+    </>
+  );
+
   return (
-    <div className={signedIn && (demo || access) ? 'shell' : 'shell logged-out'}>
-      {signedIn && (demo || access) && (
-        <aside className="sidebar">
-          <a href={clientOnly ? "#orders" : "#products"} className="identity"><img src="/img/logo.png" alt="" /><span>پنل ساری چین</span></a>
-          {token && <nav className="sidebar-menu" aria-label="سفارش‌ها">
-            <a href="#orders" aria-current={isOrders ? 'page' : undefined}><ClipboardList size={18} /> سفارش‌ها</a>
-          </nav>}
-          {!clientOnly && <>
-          <nav className="sidebar-menu members-menu" aria-label="کاتالوگ">
-            <h2>کاتالوگ</h2>
-            {(Object.keys(sections) as Section[]).map(key => {
-              const { label, icon: Icon } = sections[key];
-              return <a key={key} href={`#${key}`} aria-current={section === key ? 'page' : undefined}><Icon size={18} />{label}</a>;
-            })}
-          </nav>
-          <nav className="sidebar-menu members-menu" aria-label="اعضا">
-            <h2>اعضا</h2>
-            {(Object.keys(memberSections) as MemberGroup[]).map(key => {
-              const { label, icon: Icon } = memberSections[key];
-              return <a key={key} href={`#${key}`} aria-current={section === key ? 'page' : undefined}><Icon size={18} />{label}</a>;
-            })}
-          </nav>
-          <nav className="sidebar-menu members-menu" aria-label="معرفی">
-            <h2>معرفی</h2>
-            <a href="#directory" aria-current={isDirectory ? 'page' : undefined}><BookUser size={18} /> مواد اولیه</a>
-          </nav>
-          </>}
-        </aside>
-      )}
+    <div className={hasNavigation ? 'shell' : 'shell logged-out'}>
+      {hasNavigation && <>
+        <aside className="sidebar">{identity}{navigation}</aside>
+        <dialog id="mobile-navigation" ref={menu} className="mobile-navigation" aria-label="منوی پنل"
+          onClose={() => setMenuOpen(false)} onClick={event => {
+            const target = event.target;
+            const boundary = event.currentTarget.getBoundingClientRect();
+            if (target instanceof Element && (target.closest('a') ||
+                (target === event.currentTarget && event.clientX < boundary.left))) menu.current?.close();
+          }}>
+          <div className="mobile-navigation-heading">{identity}
+            <button type="button" className="icon-button" aria-label="بستن منو" onClick={() => menu.current?.close()}><X size={19} /></button>
+          </div>
+          {navigation}
+        </dialog>
+      </>}
       <div className="main-column">
         <header className="topbar">
-          {!signedIn ? <a href="./" className="identity"><img src="/img/logo.png" alt="" /><span>پنل ساری چین</span></a>
+          <div className="header-start">
+            {hasNavigation && <button type="button" className="icon-button mobile-menu-trigger" aria-label="باز کردن منو"
+              aria-controls="mobile-navigation" aria-expanded={menuOpen}
+              onClick={() => { menu.current?.showModal(); setMenuOpen(true); }}><Menu size={21} /></button>}
+            {!signedIn ? <a href="./" className="identity"><img src="/img/logo.png" alt="" /><span>پنل ساری چین</span></a>
             : <span className="header-context">{!isOrders && <>{isDirectory ? 'معرفی' : isMembers ? 'اعضا' : 'کاتالوگ'} <span aria-hidden="true">/</span></>}{current.label}</span>}
+          </div>
           <div className="header-actions">
             {signedIn && <span className={demo ? 'mode demo' : 'mode'}>{demo ? 'داده آزمایشی' : access ? roleLabels[access.role] : 'داده بک‌اند'}</span>}
             <button className="icon-button" type="button" aria-label={dark ? 'تم روشن' : 'تم تیره'} title={dark ? 'تم روشن' : 'تم تیره'} onClick={() => setDark(value => !value)}>
