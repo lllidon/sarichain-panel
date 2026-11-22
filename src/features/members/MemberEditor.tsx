@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { X } from 'lucide-react';
 import { ApiError, readSettings, saveMember } from '../../api';
 import { roleLabels, type Access, type Setting } from '../organization/organization';
+import LocationFields from '../locations/LocationFields';
 import { type Member, type MemberGroup, memberSections } from './members';
 
 export default function MemberEditor({ group, member, token, access, onClose, onSave, onExpired }: {
@@ -88,8 +89,7 @@ export default function MemberEditor({ group, member, token, access, onClose, on
           </>}
           <label>ایمیل<input name="email" type="email" dir="ltr" defaultValue={member?.email} maxLength={254} /></label>
           <label>سازمان / نام کسب‌وکار<input name="organization" defaultValue={member?.organization} maxLength={160} /></label>
-          <label>استان<input name="province" defaultValue={member?.province} maxLength={100} /></label>
-          <label>شهر<input name="city" defaultValue={member?.city} maxLength={100} /></label>
+          <LocationFields existing={member} />
           {group === 'producers' && <label className="editor-wide">محصولات یا فعالیت تولیدی<input name="productionActivity" defaultValue={member?.productionActivity} maxLength={180} /></label>}
           {group === 'service-providers' && <label className="editor-wide">محدوده خدمت<input name="serviceArea" defaultValue={member?.serviceArea} maxLength={180} /></label>}
           {group === 'users' && (

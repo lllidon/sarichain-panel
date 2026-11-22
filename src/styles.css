@@ -197,3 +197,6 @@ td svg { vertical-align: middle; color: var(--muted); }
 .settings-list small { display: block; color: var(--muted); }
 .settings-editor h3 { font-size: 14px; }
 .member-branch-row th { background: var(--surface-alt); color: var(--green); font-weight: 700; }
+
+.location-fields { padding: 8px; border: 1px solid var(--line); border-radius: 8px; }
+.location-fields legend { padding-inline: 4px; color: var(--green); font-size: 12px; }

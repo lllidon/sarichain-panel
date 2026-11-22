@@ -1,3 +1,4 @@
+import type { City, CityPage, Province } from './features/locations/locations';
 import type { Access, OrderPage, Setting, SettingList } from './features/organization/organization';
 import type { Supplier, SupplierPage } from './features/directory/suppliers';
 import type { Member, MemberGroup, MemberPage } from './features/members/members';
@@ -113,4 +114,19 @@ export function readOrders(token: string, page: number, signal: AbortSignal) {
   return request<OrderPage>(`/organization/orders?page=${page}&limit=${pageSize}`, {
     signal, headers: { Authorization: `Bearer ${token}` },
   });
+}
+
+export function readProvinces(signal: AbortSignal) {
+  return request<Province[]>('/locations/provinces', { signal });
+}
+
+export async function readProvinceCities(code: string, signal: AbortSignal) {
+  const items: City[] = [];
+  for (let page = 1; page <= 10000; page++) {
+    const query = new URLSearchParams({ provinceCode: code, page: String(page), limit: '100' });
+    const response = await request<CityPage>(`/locations/cities?${query}`, { signal });
+    items.push(...response.items);
+    if (items.length >= response.total || !response.items.length) break;
+  }
+  return items;
 }

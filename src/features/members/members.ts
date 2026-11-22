@@ -21,6 +21,8 @@ export type Member = {
   email?: string;
   organization?: string;
   province?: string;
+  provinceCode?: string;
+  cityCode?: string;
   city?: string;
   address?: string;
   notes?: string;
