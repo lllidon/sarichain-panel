@@ -28,6 +28,14 @@ export type Member = {
   notes?: string;
   productionActivity?: string;
   serviceArea?: string;
+  customerType?: string;
+  producerType?: string;
+  serviceTypes?: string[];
+  vehicle?: { type: string; plate: string; license: string };
+  serviceCredential?: string;
+  sellerReview?: { status: string };
+  driverReview?: { status: string };
+  specialistReview?: { status: string };
   isActive?: boolean;
 };
 export type MemberPage = { items: Member[]; total: number; page: number; limit: number };

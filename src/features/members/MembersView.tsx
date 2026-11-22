@@ -81,6 +81,11 @@ export default function MembersView({ group, token, access, onExpired }: { group
                   <th scope="col" className="desktop-only">شعبه</th>{users && <th scope="col" className="desktop-only">پروفایل</th>}<th scope="col" className="desktop-only">شهر</th><th scope="col" className="desktop-only">وضعیت</th><th scope="col" className="compact-actions">عملیات</th></tr></thead>
                 <tbody>{data.items.map((member, index) => {
                   const name = member.fullName || member.username || member.phone || 'عضو';
+                  const externalRoles = users ? '' : [
+                    member.customerType && 'خریدار',
+                    member.producerType && 'تولیدکننده',
+                    member.serviceTypes?.length && 'ارائه‌دهنده خدمات',
+                  ].filter(Boolean).join(' · ');
                   const branchHeader = users && access?.role === 'management' &&
                     (index === 0 || data.items[index - 1].branchId?._id !== member.branchId?._id);
                   const canEdit = access?.role === 'management' || !users || member.role === 'client';
@@ -92,6 +97,7 @@ export default function MembersView({ group, token, access, onExpired }: { group
                         <small>{users ? roleLabels[member.role ?? 'client'] : (section.types as Record<string, string>)[member.type ?? '']}</small>
                         {(member.branchId?.name || member.city) && <small>{member.branchId?.name || member.city}</small>}
                       </span>
+                      {externalRoles && <small className="member-organization desktop-only">{externalRoles}</small>}
                       {member.organization && <small className="member-organization desktop-only">{member.organization}</small>}</th>
                     <td className="compact-summary"><bdi>{member.phone || '—'}</bdi>
                       <span className="mobile-only"><span className={member.isActive === false ? 'status' : 'status active'}>{member.isActive === false ? 'غیرفعال' : 'فعال'}</span></span>

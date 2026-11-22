@@ -14,6 +14,15 @@ export default function MemberEditor({ group, member, token, access, onClose, on
   const section = memberSections[group];
   const [branches, setBranches] = useState<Setting[]>();
   const [profiles, setProfiles] = useState<Setting[]>();
+  const [reviewTarget, setReviewTarget] = useState('');
+  const reviewChoices = group === 'producers' && member?.producerType ? [
+    ['sellerReview', 'فروشندگی', member.sellerReview?.status],
+  ] : group === 'service-providers' && member ? [
+    ...(member.serviceTypes?.includes('driver') ? [['driverReview', 'حمل‌ونقل', member.driverReview?.status]] : []),
+    ...(member.serviceTypes?.some(type => type === 'supervisor' || type === 'quality')
+      ? [['specialistReview', 'نظارت و کنترل کیفیت', member.specialistReview?.status]] : []),
+  ] : [];
+  const reviewLabels: Record<string, string> = { pending: 'در انتظار بررسی', approved: 'تأییدشده', rejected: 'ردشده' };
   const role = member ? member.role ?? 'client' : access.role === 'management' ? 'admin' : 'client';
   const loading = !branches || (group === 'users' && !profiles);
 
@@ -38,7 +47,7 @@ export default function MemberEditor({ group, member, token, access, onClose, on
     event.preventDefault();
     const values = new FormData(event.currentTarget);
     const fields: Record<string, string | boolean> = Object.fromEntries(
-      [...values].filter(([key, value]) => key !== 'isActive' && (!['password', 'branchId', 'profileId'].includes(key) || value))
+      [...values].filter(([key, value]) => key !== 'isActive' && (!['password', 'branchId', 'profileId', 'reviewTarget', 'reviewDecision'].includes(key) || value))
         .map(([key, value]) => [key, key === 'password' ? String(value) : String(value).trim()]),
     );
     if (group === 'users' && !member) fields.role = role;
@@ -92,10 +101,27 @@ export default function MemberEditor({ group, member, token, access, onClose, on
           <LocationFields existing={member} />
           {group === 'producers' && <label className="editor-wide">محصولات یا فعالیت تولیدی<input name="productionActivity" defaultValue={member?.productionActivity} maxLength={180} /></label>}
           {group === 'service-providers' && <label className="editor-wide">محدوده خدمت<input name="serviceArea" defaultValue={member?.serviceArea} maxLength={180} /></label>}
-          {group === 'users' && (
-            <label className="editor-wide">{member ? 'رمز جدید (اختیاری)' : 'رمز ورود'}
-              <input name="password" type="password" dir="ltr" autoComplete="new-password" minLength={8} maxLength={128} required={!member} />
-            </label>
+          <label className="editor-wide">{group === 'users' ? (member ? 'رمز جدید (اختیاری)' : 'رمز ورود')
+            : 'رمز ورود به سایت (اختیاری)'}
+            <input name="password" type="password" dir="ltr" autoComplete="new-password" minLength={8} maxLength={128} required={group === 'users' && !member} />
+          </label>
+          {group !== 'users' && !member && <p className="editor-wide editor-muted">برای افزودن نقش به عضو موجود، موبایل او را وارد کنید. تغییر رمز از فرم ویرایش همان عضو انجام می‌شود.</p>}
+          {reviewChoices.length > 0 && (
+            <fieldset className="editor-fields editor-wide location-fields">
+              <legend>بررسی مجوز فعالیت</legend>
+              <p className="editor-wide">{reviewChoices.map(([, label, status]) => `${label}: ${reviewLabels[status ?? 'pending']}`).join(' · ')}</p>
+              {member?.vehicle && group === 'service-providers' && <p className="editor-wide">وسیله: {member.vehicle.type} · پلاک: {member.vehicle.plate} · گواهینامه: {member.vehicle.license}</p>}
+              {member?.serviceCredential && group === 'service-providers' && <p className="editor-wide">مرجع مدرک: {member.serviceCredential}</p>}
+              {access.role === 'management' && <>
+                <label>درخواست مورد بررسی<select aria-label="درخواست مورد بررسی" name="reviewTarget" value={reviewTarget} onChange={event => setReviewTarget(event.target.value)}>
+                  <option value="">بدون تغییر</option>
+                  {reviewChoices.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                </select></label>
+                {reviewTarget && <label>نتیجه بررسی<select aria-label="نتیجه بررسی" name="reviewDecision" required defaultValue="">
+                  <option value="" disabled>انتخاب نتیجه</option><option value="approved">تأیید</option><option value="rejected">رد</option>
+                </select></label>}
+              </>}
+            </fieldset>
           )}
           <label className="editor-wide">نشانی<textarea name="address" defaultValue={member?.address} maxLength={500} rows={2} /></label>
           <label className="editor-wide">یادداشت<textarea name="notes" defaultValue={member?.notes} maxLength={1000} rows={2} /></label>

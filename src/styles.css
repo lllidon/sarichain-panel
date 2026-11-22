@@ -246,3 +246,5 @@ td svg { vertical-align: middle; color: var(--muted); }
   .mode { padding-inline: 4px; }
   .compact-table .item-image { width: 25px; height: 25px; }
 }
+
+.editor-muted { color: var(--muted); font-size: 12px; }
