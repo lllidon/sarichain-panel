@@ -20,8 +20,8 @@ function price(item: CatalogItem) {
   return '—';
 }
 
-function CatalogRow({ item, section, demo, onEdit }: {
-  item: CatalogItem; section: Section; demo: boolean; onEdit: (mode: EditorMode, item: CatalogItem) => void;
+function CatalogRow({ item, section, demo, canEdit, onEdit }: {
+  item: CatalogItem; section: Section; demo: boolean; canEdit: boolean; onEdit: (mode: EditorMode, item: CatalogItem) => void;
 }) {
   const Icon = sections[section].icon;
   const [failed, setFailed] = useState(false);
@@ -54,7 +54,7 @@ function CatalogRow({ item, section, demo, onEdit }: {
       )}
       {section === 'brands' && <td>{item.shortDescription || '—'}</td>}
       <td><span className={item.isActive ? 'status active' : 'status'}>{item.isActive ? 'فعال' : 'غیرفعال'}</span></td>
-      {!demo && <td>
+      {canEdit && <td>
         <div className="row-actions">
           <button type="button" title="ویرایش سریع" aria-label={`ویرایش سریع ${item.name}`} onClick={() => onEdit('quick', item)}><Zap size={15} /></button>
           <button type="button" title="ویرایش کامل" aria-label={`ویرایش کامل ${item.name}`} onClick={() => onEdit('edit', item)}><Pencil size={15} /></button>
@@ -65,7 +65,7 @@ function CatalogRow({ item, section, demo, onEdit }: {
   );
 }
 
-export default function CatalogView({ section, token, onExpired }: { section: Section; token: string | null; onExpired: () => void }) {
+export default function CatalogView({ section, token, canEdit, onExpired }: { section: Section; token: string | null; canEdit: boolean; onExpired: () => void }) {
   const [draft, setDraft] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -121,7 +121,7 @@ export default function CatalogView({ section, token, onExpired }: { section: Se
       <div className="page-heading">
         <div className="page-icon"><Icon size={25} /></div>
         <div><h1>{sections[section].label}</h1><p>کاتالوگ ساری چین</p></div>
-        {token && <button type="button" className="add-record" onClick={() => edit('create')}><Plus size={17} /> افزودن</button>}
+        {canEdit && <button type="button" className="add-record" onClick={() => edit('create')}><Plus size={17} /> افزودن</button>}
       </div>
       {notice && <p className="catalog-notice" role="status">{notice}</p>}
       <section className="table-card" aria-label={`فهرست ${sections[section].label}`}>
@@ -150,8 +150,8 @@ export default function CatalogView({ section, token, onExpired }: { section: Se
         ) : (
           <div className="table-scroll" tabIndex={0} aria-label="جدول کاتالوگ">
             <table>
-              <thead><tr>{headings[section].map(heading => <th scope="col" key={heading}>{heading}</th>)}{!demo && <th scope="col">عملیات</th>}</tr></thead>
-              <tbody>{result.items.map(item => <CatalogRow key={item._id} item={item} section={section} demo={demo} onEdit={edit} />)}</tbody>
+              <thead><tr>{headings[section].map(heading => <th scope="col" key={heading}>{heading}</th>)}{canEdit && <th scope="col">عملیات</th>}</tr></thead>
+              <tbody>{result.items.map(item => <CatalogRow key={item._id} item={item} section={section} demo={demo} canEdit={canEdit} onEdit={edit} />)}</tbody>
             </table>
           </div>
         )}

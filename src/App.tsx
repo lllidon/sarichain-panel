@@ -1,5 +1,9 @@
+import { readAccess, ApiError } from './api';
+import OrdersView from './features/organization/OrdersView';
+import SettingsDrawer from './features/organization/SettingsDrawer';
+import { roleLabels, type Access } from './features/organization/organization';
 import { useCallback, useEffect, useState } from 'react';
-import { BookUser, LogOut, Moon, Sun } from 'lucide-react';
+import { BookUser, ClipboardList, LogOut, Moon, Settings, Sun } from 'lucide-react';
 import Login from './features/auth/Login';
 import CatalogView from './features/catalog/CatalogView';
 import SuppliersView from './features/directory/SuppliersView';
@@ -10,9 +14,9 @@ import { type Section, sections } from './features/catalog/catalog';
 const tokenKey = 'sarichain-panel-token';
 const demoKey = 'sarichain-panel-demo';
 
-function getSection(): Section | MemberGroup | 'directory' {
+function getSection(): Section | MemberGroup | 'directory' | 'orders' {
   const section = location.hash.slice(1);
-  if (section === 'directory') return section;
+  if (section === 'directory' || section === 'orders') return section;
   if (Object.hasOwn(memberSections, section)) return section as MemberGroup;
   return Object.hasOwn(sections, section) ? section as Section : 'products';
 }
@@ -26,6 +30,9 @@ export default function App() {
     return saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
   });
   const [expired, setExpired] = useState(false);
+  const [access, setAccess] = useState<Access>();
+  const [accessError, setAccessError] = useState(false);
+  const [settings, setSettings] = useState(false);
 
   useEffect(() => {
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
@@ -43,12 +50,28 @@ export default function App() {
     sessionStorage.removeItem(demoKey);
     setToken(null);
     setDemo(false);
+    setAccess(undefined);
+    setSettings(false);
   }, []);
 
   const expire = useCallback(() => {
     logout();
     setExpired(true);
   }, [logout]);
+
+  useEffect(() => {
+    if (!token) return;
+    const controller = new AbortController();
+    setAccessError(false);
+    readAccess(token, controller.signal).then(current => {
+      if (!controller.signal.aborted) setAccess(current);
+    }).catch(error => {
+      if (controller.signal.aborted) return;
+      if (error instanceof ApiError && error.status === 401) expire();
+      else setAccessError(true);
+    });
+    return () => controller.abort();
+  }, [token, expire]);
 
   function openLive(accessToken: string) {
     sessionStorage.setItem(tokenKey, accessToken);
@@ -65,15 +88,22 @@ export default function App() {
   }
 
   const signedIn = Boolean(token || demo);
-  const isMembers = Object.hasOwn(memberSections, section);
-  const isDirectory = section === 'directory';
-  const current = isDirectory ? { label: 'مواد اولیه' } : isMembers ? memberSections[section as MemberGroup] : sections[section as Section];
+  const clientOnly = access?.role === 'client';
+  const visibleSection = clientOnly ? 'orders' : section;
+  const isOrders = visibleSection === 'orders';
+  const isMembers = Object.hasOwn(memberSections, visibleSection);
+  const isDirectory = visibleSection === 'directory';
+  const current = isOrders ? { label: 'سفارش‌ها' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? memberSections[section as MemberGroup] : sections[section as Section];
   return (
-    <div className={signedIn ? 'shell' : 'shell logged-out'}>
-      {signedIn && (
+    <div className={signedIn && (demo || access) ? 'shell' : 'shell logged-out'}>
+      {signedIn && (demo || access) && (
         <aside className="sidebar">
-          <a href="#products" className="identity"><img src="/img/logo.png" alt="" /><span>پنل ساری چین</span></a>
-          <nav className="sidebar-menu" aria-label="کاتالوگ">
+          <a href={clientOnly ? "#orders" : "#products"} className="identity"><img src="/img/logo.png" alt="" /><span>پنل ساری چین</span></a>
+          {token && <nav className="sidebar-menu" aria-label="سفارش‌ها">
+            <a href="#orders" aria-current={isOrders ? 'page' : undefined}><ClipboardList size={18} /> سفارش‌ها</a>
+          </nav>}
+          {!clientOnly && <>
+          <nav className="sidebar-menu members-menu" aria-label="کاتالوگ">
             <h2>کاتالوگ</h2>
             {(Object.keys(sections) as Section[]).map(key => {
               const { label, icon: Icon } = sections[key];
@@ -91,28 +121,39 @@ export default function App() {
             <h2>معرفی</h2>
             <a href="#directory" aria-current={isDirectory ? 'page' : undefined}><BookUser size={18} /> مواد اولیه</a>
           </nav>
+          </>}
         </aside>
       )}
       <div className="main-column">
         <header className="topbar">
           {!signedIn ? <a href="./" className="identity"><img src="/img/logo.png" alt="" /><span>پنل ساری چین</span></a>
-            : <span className="header-context">{isDirectory ? 'معرفی' : isMembers ? 'اعضا' : 'کاتالوگ'} <span aria-hidden="true">/</span> {current.label}</span>}
+            : <span className="header-context">{!isOrders && <>{isDirectory ? 'معرفی' : isMembers ? 'اعضا' : 'کاتالوگ'} <span aria-hidden="true">/</span></>}{current.label}</span>}
           <div className="header-actions">
-            {signedIn && <span className={demo ? 'mode demo' : 'mode'}>{demo ? 'داده آزمایشی' : 'داده بک‌اند'}</span>}
+            {signedIn && <span className={demo ? 'mode demo' : 'mode'}>{demo ? 'داده آزمایشی' : access ? roleLabels[access.role] : 'داده بک‌اند'}</span>}
             <button className="icon-button" type="button" aria-label={dark ? 'تم روشن' : 'تم تیره'} title={dark ? 'تم روشن' : 'تم تیره'} onClick={() => setDark(value => !value)}>
               {dark ? <Sun size={19} /> : <Moon size={18} />}
             </button>
+            {token && access?.role === 'management' && (
+              <button className="icon-button" type="button" aria-label="تنظیمات" title="تنظیمات" onClick={() => setSettings(true)}><Settings size={18} /></button>
+            )}
             {signedIn && <button className="icon-button" type="button" aria-label={demo ? 'خروج از نسخه آزمایشی' : 'خروج'} onClick={logout}><LogOut size={18} /></button>}
           </div>
         </header>
         {expired && <p className="session-alert" role="status">نشست شما پایان یافت. دوباره وارد شوید.</p>}
         {signedIn
-          ? isDirectory
-            ? <SuppliersView token={token} onExpired={expire} />
-            : isMembers
-            ? <MembersView key={section} group={section as MemberGroup} token={token} onExpired={expire} />
-            : <CatalogView key={section} section={section as Section} token={token} onExpired={expire} />
+          ? token && !access
+            ? <main className="workspace"><p role="status">{accessError ? 'دسترسی حساب دریافت نشد. دوباره وارد شوید.' : 'در حال دریافت دسترسی حساب…'}</p></main>
+            : isOrders && token
+              ? <OrdersView token={token} onExpired={expire} />
+              : isDirectory
+                ? <SuppliersView token={token} onExpired={expire} />
+                : isMembers
+                  ? <MembersView key={visibleSection} group={visibleSection as MemberGroup} token={token} access={access} onExpired={expire} />
+                  : <CatalogView key={visibleSection} section={isOrders ? 'products' : visibleSection as Section} token={token}
+                    canEdit={access?.role === 'management'} onExpired={expire} />
           : <Login onLogin={openLive} onDemo={openDemo} />}
+        {settings && token && access?.role === 'management' && <SettingsDrawer token={token} onClose={() => setSettings(false)} onExpired={expire} />}
+
       </div>
     </div>
   );

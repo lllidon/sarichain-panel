@@ -1,3 +1,4 @@
+import type { AccessRole } from '../organization/organization';
 import { Handshake, ShoppingBag, Sprout, Users } from 'lucide-react';
 
 export const memberSections = {
@@ -11,7 +12,9 @@ export type MemberGroup = keyof typeof memberSections;
 export type Member = {
   _id: string;
   username?: string;
-  role?: 'admin';
+  role?: AccessRole;
+  branchId?: { _id: string; name: string };
+  profileId?: { _id: string; name: string };
   fullName?: string;
   phone?: string;
   type?: string;

@@ -1,3 +1,4 @@
+import type { Access, OrderPage, Setting, SettingList } from './features/organization/organization';
 import type { Supplier, SupplierPage } from './features/directory/suppliers';
 import type { Member, MemberGroup, MemberPage } from './features/members/members';
 import { type CatalogPage, type Section, type NamedRecord, pageSize } from './features/catalog/catalog';
@@ -94,4 +95,22 @@ export function listSuppliers(token: string, filters: Record<string, string>, pa
 
 export function saveSupplier(token: string, fields: object, id?: string) {
   return write<Supplier>(`/directory/material-suppliers${id ? '/' + id : ''}`, id ? 'PATCH' : 'POST', token, fields);
+}
+
+export function readAccess(token: string, signal: AbortSignal) {
+  return request<Access>('/auth/me', { signal, headers: { Authorization: `Bearer ${token}` } });
+}
+
+export function readSettings(list: SettingList, token: string, signal: AbortSignal) {
+  return request<Setting[]>(`/organization/${list}`, { signal, headers: { Authorization: `Bearer ${token}` } });
+}
+
+export function writeSetting(list: SettingList, token: string, fields: object, id?: string) {
+  return write<Setting>(`/organization/${list}${id ? '/' + id : ''}`, id ? 'PATCH' : 'POST', token, fields);
+}
+
+export function readOrders(token: string, page: number, signal: AbortSignal) {
+  return request<OrderPage>(`/organization/orders?page=${page}&limit=${pageSize}`, {
+    signal, headers: { Authorization: `Bearer ${token}` },
+  });
 }

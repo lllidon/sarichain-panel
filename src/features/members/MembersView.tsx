@@ -1,11 +1,12 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { Fragment, useEffect, useState, type FormEvent } from 'react';
 import { ChevronLeft, ChevronRight, Pencil, Plus, Search, X } from 'lucide-react';
 import { ApiError, readMembers } from '../../api';
+import { roleLabels, type Access } from '../organization/organization';
 import { number } from '../catalog/catalog';
 import MemberEditor from './MemberEditor';
 import { type Member, type MemberGroup, type MemberPage, memberSections } from './members';
 
-export default function MembersView({ group, token, onExpired }: { group: MemberGroup; token: string | null; onExpired: () => void }) {
+export default function MembersView({ group, token, access, onExpired }: { group: MemberGroup; token: string | null; access?: Access; onExpired: () => void }) {
   const [draft, setDraft] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -15,6 +16,7 @@ export default function MembersView({ group, token, onExpired }: { group: Member
   const [editor, setEditor] = useState<{ member?: Member }>();
   const [notice, setNotice] = useState('');
   const section = memberSections[group];
+  const users = group === 'users';
   const Icon = section.icon;
   const pages = data ? Math.min(10000, Math.max(1, Math.ceil(data.total / data.limit))) : 1;
 
@@ -29,7 +31,7 @@ export default function MembersView({ group, token, onExpired }: { group: Member
       if (controller.signal.aborted) return;
       if (error instanceof ApiError && error.status === 401) onExpired();
       else setError(error instanceof ApiError && error.status === 403
-        ? 'فهرست اعضا فقط برای مدیر قابل مشاهده است.'
+        ? 'دسترسی مشاهده اعضا در این محدوده مجاز نیست.'
         : 'دریافت فهرست اعضا انجام نشد.');
     });
     return () => controller.abort();
@@ -75,19 +77,27 @@ export default function MembersView({ group, token, onExpired }: { group: Member
           : !data.items.length ? <div className="table-state">{search ? 'عضوی با این جستجو پیدا نشد.' : 'عضوی برای نمایش وجود ندارد.'}</div> : (
             <div className="table-scroll" tabIndex={0} aria-label="جدول اعضا">
               <table>
-                <thead><tr><th scope="col">نام</th><th scope="col">موبایل</th><th scope="col">{section.typeLabel}</th>
-                  <th scope="col">شهر</th><th scope="col">وضعیت</th><th scope="col">عملیات</th></tr></thead>
-                <tbody>{data.items.map(member => {
+                <thead><tr><th scope="col">نام</th><th scope="col">موبایل</th><th scope="col">{section.typeLabel}</th>{users && <th scope="col">نقش دسترسی</th>}
+                  <th scope="col">شعبه</th>{users && <th scope="col">پروفایل</th>}<th scope="col">شهر</th><th scope="col">وضعیت</th><th scope="col">عملیات</th></tr></thead>
+                <tbody>{data.items.map((member, index) => {
                   const name = member.fullName || member.username || member.phone || 'عضو';
-                  return <tr key={member._id}>
+                  const branchHeader = users && access?.role === 'management' &&
+                    (index === 0 || data.items[index - 1].branchId?._id !== member.branchId?._id);
+                  const canEdit = access?.role === 'management' || !users || member.role === 'client';
+                  return <Fragment key={member._id}>
+                    {branchHeader && <tr className="member-branch-row"><th scope="rowgroup" colSpan={9}>{member.branchId?.name || 'مدیریت مرکزی / بدون شعبه'}</th></tr>}
+                    <tr>
                     <th scope="row">{name}{member.organization && <small className="member-organization">{member.organization}</small>}</th>
                     <td><bdi>{member.phone || '—'}</bdi></td>
-                    <td>{member.role === 'admin' ? 'مدیر اصلی' : (section.types as Record<string, string>)[member.type ?? ''] || '—'}</td>
+                    <td>{(section.types as Record<string, string>)[member.type ?? ''] || '—'}</td>
+                    {users && <td>{roleLabels[member.role ?? 'client']}</td>}
+                    <td>{member.branchId?.name || '—'}</td>
+                    {users && <td>{member.profileId?.name || '—'}</td>}
                     <td>{member.city || '—'}</td>
                     <td><span className={member.isActive === false ? 'status' : 'status active'}>{member.isActive === false ? 'غیرفعال' : 'فعال'}</span></td>
-                    <td><div className="row-actions member-row-actions"><button type="button" title="ویرایش" aria-label={`ویرایش ${name}`}
-                      onClick={() => { setNotice(''); setEditor({ member }); }}><Pencil size={15} /></button></div></td>
-                  </tr>;
+                    <td>{canEdit && <div className="row-actions member-row-actions"><button type="button" title="ویرایش" aria-label={`ویرایش ${name}`}
+                      onClick={() => { setNotice(''); setEditor({ member }); }}><Pencil size={15} /></button></div>}</td>
+                  </tr></Fragment>;
                 })}</tbody>
               </table>
             </div>
@@ -98,7 +108,7 @@ export default function MembersView({ group, token, onExpired }: { group: Member
           <button type="button" disabled={page >= pages} onClick={() => setPage(page + 1)}>بعدی <ChevronLeft size={15} /></button>
         </nav>}
       </section>
-      {token && editor && <MemberEditor group={group} token={token} member={editor.member}
+      {token && editor && access && <MemberEditor access={access} group={group} token={token} member={editor.member}
         onClose={() => setEditor(undefined)} onSave={saved} onExpired={onExpired} />}
     </main>
   );
