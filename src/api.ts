@@ -68,6 +68,14 @@ export function addTag(name: string, token: string) {
   return write<NamedRecord>('/catalog/tags', 'POST', token, { name });
 }
 
+export function uploadCatalogImage(file: File, token: string) {
+  const body = new FormData();
+  body.append('image', file);
+  return request<{ url: string }>('/web/catalog-images', {
+    method: 'POST', headers: { Authorization: `Bearer ${token}` }, body,
+  });
+}
+
 export function saveCatalog(section: Section, token: string, data: object, id?: string) {
   return write<CatalogPage['items'][number]>(`/catalog/${section}${id ? '/' + id : ''}`, id ? 'PATCH' : 'POST', token, data);
 }

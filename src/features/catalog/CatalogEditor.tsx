@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { X } from 'lucide-react';
-import { ApiError, deleteCatalog, readCatalogChoices, saveCatalog } from '../../api';
+import { ApiError, deleteCatalog, readCatalogChoices, saveCatalog, uploadCatalogImage } from '../../api';
 import { type CatalogItem, type Section } from './catalog';
 import TagManager from './TagManager';
 
@@ -19,6 +19,8 @@ export default function CatalogEditor({ section, mode, item, token, onClose, onS
   const [brands, setBrands] = useState<CatalogItem[]>([]);
   const [masters, setMasters] = useState<CatalogItem[]>([]);
   const [choicesStatus, setChoicesStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [gallery, setGallery] = useState(item?.gallery ?? []);
+  const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const full = mode === 'edit' || mode === 'create';
@@ -83,6 +85,12 @@ export default function CatalogEditor({ section, mode, item, token, onClose, onS
             body.kind = kind;
             body.sku = value('sku');
             body.itemId = value('itemId');
+            const urls = [...gallery];
+            for (const file of files) {
+              if (file.size > 2 * 1024 * 1024) throw new Error('حجم هر تصویر باید حداکثر ۲ مگابایت باشد.');
+              urls.push((await uploadCatalogImage(file, token)).url);
+            }
+            body.gallery = [...new Set(urls)];
             const min = numeric('priceMin');
             const max = numeric('priceMax');
             if ((min === undefined) !== (max === undefined) || (min !== undefined && max !== undefined && min > max)) {
@@ -179,6 +187,28 @@ export default function CatalogEditor({ section, mode, item, token, onClose, onS
                     )}
                     <label>حداقل قیمت (کارسا)<input name="priceMin" type="number" min="0" max="1000000" step="0.000001" defaultValue={item?.price?.min} /></label>
                     <label>حداکثر قیمت (کارسا)<input name="priceMax" type="number" min="0" max="1000000" step="0.000001" defaultValue={item?.price?.max} /></label>
+                    <fieldset className="editor-wide sale-unit-editor catalog-gallery-editor">
+                      <legend>گالری محصول</legend>
+                      {gallery.length > 0 && <ul>
+                        {gallery.map((url, index) => <li key={url}>
+                          <img src={url.startsWith('/web/catalog-images/') ? '/api' + url : url} alt={`تصویر ${index + 1}`} />
+                          <button type="button" onClick={() => setGallery(current => current.filter(value => value !== url))}>حذف تصویر</button>
+                        </li>)}
+                      </ul>}
+                      <label>تصاویر محصول<input type="file" accept="image/jpeg,image/png,image/webp" multiple
+                        disabled={gallery.length === 8} onChange={event => {
+                          const selected = Array.from(event.target.files ?? []);
+                          if (selected.length + gallery.length > 8 || selected.some(file => file.size > 2 * 1024 * 1024)) {
+                            event.target.value = '';
+                            setFiles([]);
+                            setError('حداکثر ۸ تصویر و تا ۲ مگابایت برای هر تصویر انتخاب کنید.');
+                            return;
+                          }
+                          setFiles(selected);
+                          setError('');
+                        }} /></label>
+                      <small>{files.length ? `${files.length} تصویر بعد از ذخیره بارگذاری می‌شود.` : 'JPEG، PNG یا WebP، حداکثر ۸ تصویر'}</small>
+                    </fieldset>
                     <fieldset className="editor-wide sale-unit-editor">
                       <legend>واحدهای فروش</legend>
                       <label>واحد اصلی<input name="saleUnit" maxLength={40} placeholder="مثلاً کیلوگرم" defaultValue={item?.saleUnit} /></label>

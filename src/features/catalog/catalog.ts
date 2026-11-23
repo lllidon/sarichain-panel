@@ -17,6 +17,7 @@ export type CatalogItem = {
   isActive: boolean;
   thumbnailUrl?: string;
   imageUrl?: string;
+  gallery?: string[];
   shortDescription?: string;
   description?: string;
   tagIds?: NamedRecord[];
