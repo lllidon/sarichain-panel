@@ -6,14 +6,16 @@
 :root {
   font-family: Vazirmatn, Tahoma, sans-serif;
   color-scheme: light;
-  --background: #f5f7f1;
+  --background: #f4f7fb;
   --surface: #fff;
   --surface-alt: #f4f7f2;
   --text: #20352a;
   --muted: #56675e;
-  --line: #dce6de;
-  --green: #28553e;
-  --accent: #edf4eb;
+  --line: #dbe5f2;
+  --green: #3e6b00;
+  --primary: #064399;
+  --on-primary: #fff;
+  --accent: #edf5e3;
   --shadow: #263c2e0b;
   --warning: #79521f;
   --warning-bg: #fff2d9;
@@ -21,14 +23,16 @@
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --background: #121a16;
-  --surface: #1b2620;
-  --surface-alt: #202e26;
+  --background: #101824;
+  --surface: #172232;
+  --surface-alt: #202e41;
   --text: #e6efe7;
   --muted: #adbbaf;
-  --line: #35463c;
-  --green: #b5dfb8;
-  --accent: #273e30;
+  --line: #344861;
+  --green: #bde774;
+  --primary: #a9caff;
+  --on-primary: #102545;
+  --accent: #2a3b20;
   --shadow: #060a0752;
   --warning: #f2d197;
   --warning-bg: #453821;
@@ -46,7 +50,8 @@ h1, h2, p { margin: 0; }
 .shell.logged-out { grid-template-columns: 1fr; }
 .sidebar { background: var(--surface); border-inline-end: 1px solid var(--line); padding: 18px 13px; }
 .identity { display: inline-flex; align-items: center; gap: 8px; color: var(--text); font-weight: 700; white-space: nowrap; }
-.identity img { width: 55px; height: 38px; object-fit: contain; border-radius: 5px; background: #f5f7f1; }
+.identity img { display: block; width: clamp(90px, 16vw, 116px); height: auto; }
+:root[data-theme="dark"] .identity img { background: #f7faff; border-radius: 6px; padding: 4px; }
 .sidebar .identity { margin-inline: 7px; }
 .sidebar-menu { display: grid; gap: 5px; margin-top: 37px; }
 .sidebar-menu h2 { font-size: 12px; color: var(--muted); padding-inline: 10px; margin-bottom: 4px; }
@@ -102,7 +107,7 @@ td svg { vertical-align: middle; color: var(--muted); }
 .login-card form, .login-card label { display: grid; gap: 7px; }
 .login-card form { margin-top: 18px; gap: 12px; }
 .login-card input { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; color: var(--text); background: var(--surface-alt); }
-.primary-button { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; padding: 9px; border: 0; border-radius: 8px; background: var(--green); color: var(--surface); }
+.primary-button { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; padding: 9px; border: 0; border-radius: 8px; background: var(--primary); color: var(--on-primary); }
 .demo-button { width: 100%; margin-top: 13px; padding: 7px; border: 1px solid var(--line); border-radius: 8px; background: var(--accent); color: var(--green); }
 .login-card .error-message { color: var(--error); }
 .session-alert { text-align: center; color: var(--error); padding-top: 12px; }
@@ -111,10 +116,10 @@ td svg { vertical-align: middle; color: var(--muted); }
 .add-record, .save-button, .danger-button {
   display: inline-flex; align-items: center; justify-content: center; gap: 5px;
   padding: 7px 13px; border: 1px solid transparent; border-radius: 8px;
-  color: var(--surface); background: var(--green); font: inherit;
+  color: var(--on-primary); background: var(--primary); font: inherit;
 }
 .add-record { margin-inline-start: auto; }
-.danger-button { background: var(--error); }
+.danger-button { background: var(--error); color: var(--surface); }
 .catalog-notice { padding: 8px 12px; margin-bottom: 10px; background: var(--accent); color: var(--green); border-radius: 8px; }
 .row-actions { display: flex; gap: 5px; }
 .row-actions button, .tag-chips button {

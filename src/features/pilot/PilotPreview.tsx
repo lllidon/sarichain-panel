@@ -36,7 +36,7 @@ export default function PilotPreview() {
 
   return <div className="pilot-shell" dir="rtl">
     <aside className="pilot-sidebar">
-      <a className="identity" href="/"><img src="/img/logo.png" alt="" /><span>پنل ساری‌چین</span></a>
+      <a className="identity" href="/"><img src="/img/sarichain-logo.svg" alt="پنل ساری‌چین" width="116" height="39" /></a>
       <nav aria-label="بخش‌های پیش‌نمایش">{views.map((item, index) => {
         const ItemIcon = icons[index];
         return <button type="button" key={item.id} aria-current={index === tab ? 'page' : undefined}

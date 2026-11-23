@@ -106,7 +106,7 @@ export default function App() {
   const current = isOrders ? { label: 'سفارش‌ها' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
   const hasNavigation = signedIn && Boolean(demo || access);
   const identity = (
-    <a href={clientOnly ? '#orders' : '#products'} className="identity"><img src="/img/logo.png" alt="" /><span>پنل ساری چین</span></a>
+    <a href={clientOnly ? '#orders' : '#products'} className="identity"><img src="/img/sarichain-logo.svg" alt="پنل ساری‌چین" width="116" height="39" /></a>
   );
   const navigation = (
     <>
@@ -160,7 +160,7 @@ export default function App() {
             {hasNavigation && <button type="button" className="icon-button mobile-menu-trigger" aria-label="باز کردن منو"
               aria-controls="mobile-navigation" aria-expanded={menuOpen}
               onClick={() => { menu.current?.showModal(); setMenuOpen(true); }}><Menu size={21} /></button>}
-            {!signedIn ? <a href="./" className="identity"><img src="/img/logo.png" alt="" /><span>پنل ساری چین</span></a>
+            {!signedIn ? <a href="./" className="identity"><img src="/img/sarichain-logo.svg" alt="پنل ساری‌چین" width="116" height="39" /></a>
             : <span className="header-context">{!isOrders && <>{isDirectory ? 'معرفی' : isMembers ? 'اعضا' : 'کاتالوگ'} <span aria-hidden="true">/</span></>}{current.label}</span>}
           </div>
           <div className="header-actions">
