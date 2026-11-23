@@ -114,6 +114,9 @@ export default function App() {
         <a href="#orders" aria-current={isOrders ? 'page' : undefined}><ClipboardList size={18} /> سفارش‌ها</a>
       </nav>}
       {!clientOnly && <>
+      <nav className="sidebar-menu" aria-label="پیش‌نمایش">
+        <a href="/pilot"><ClipboardList size={18} /> پیش‌نمایش پایلوت</a>
+      </nav>
       <nav className="sidebar-menu members-menu" aria-label="کاتالوگ">
         <h2>کاتالوگ</h2>
         {(Object.keys(sections) as Section[]).map(key => {
