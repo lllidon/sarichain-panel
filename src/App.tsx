@@ -3,7 +3,7 @@ import OrdersView from './features/organization/OrdersView';
 import SettingsDrawer from './features/organization/SettingsDrawer';
 import { roleLabels, type Access } from './features/organization/organization';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { BookUser, ClipboardList, LogOut, Menu, Moon, Settings, Sun, X } from 'lucide-react';
+import { BookUser, ClipboardList, LogOut, Menu, Moon, Settings, Sun, Users, X } from 'lucide-react';
 import Login from './features/auth/Login';
 import CatalogView from './features/catalog/CatalogView';
 import SuppliersView from './features/directory/SuppliersView';
@@ -103,7 +103,7 @@ export default function App() {
   const isOrders = visibleSection === 'orders';
   const isMembers = Object.hasOwn(memberSections, visibleSection);
   const isDirectory = visibleSection === 'directory';
-  const current = isOrders ? { label: 'سفارش‌ها' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? memberSections[section as MemberGroup] : sections[section as Section];
+  const current = isOrders ? { label: 'سفارش‌ها' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
   const hasNavigation = signedIn && Boolean(demo || access);
   const identity = (
     <a href={clientOnly ? '#orders' : '#products'} className="identity"><img src="/img/logo.png" alt="" /><span>پنل ساری چین</span></a>
@@ -123,10 +123,8 @@ export default function App() {
       </nav>
       <nav className="sidebar-menu members-menu" aria-label="اعضا">
         <h2>اعضا</h2>
-        {(Object.keys(memberSections) as MemberGroup[]).map(key => {
-          const { label, icon: Icon } = memberSections[key];
-          return <a key={key} href={`#${key}`} aria-current={section === key ? 'page' : undefined}><Icon size={18} />{label}</a>;
-        })}
+        <a href="#users" aria-current={visibleSection === 'users' ? 'page' : undefined}><Users size={18} /> کاربران پنل</a>
+        <a href="#customers" aria-current={isMembers && visibleSection !== 'users' ? 'page' : undefined}><Users size={18} /> همکاران</a>
       </nav>
       <nav className="sidebar-menu members-menu" aria-label="معرفی">
         <h2>معرفی</h2>

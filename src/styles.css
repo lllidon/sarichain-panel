@@ -248,3 +248,19 @@ td svg { vertical-align: middle; color: var(--muted); }
 }
 
 .editor-muted { color: var(--muted); font-size: 12px; }
+
+.member-role-filter {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+}
+
+.member-role-filter select {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: .5rem;
+  padding: .45rem;
+}

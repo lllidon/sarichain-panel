@@ -54,13 +54,20 @@ export default function MembersView({ group, token, access, onExpired }: { group
     <main className="workspace">
       <div className="page-heading">
         <div className="page-icon"><Icon size={25} /></div>
-        <div><h1>{section.label}</h1><p>اعضای ساری چین</p></div>
+        <div><h1>{users ? section.label : 'همکاران'}</h1><p>اعضای ساری چین</p></div>
         {token && data && <button type="button" className="add-record" onClick={() => { setNotice(''); setEditor({}); }}><Plus size={17} /> افزودن عضو</button>}
       </div>
       {notice && <p className="catalog-notice" role="status">{notice}</p>}
       <section className="table-card" aria-label={`فهرست ${section.label}`}>
         {token && (
           <div className="table-toolbar">
+            {!users && <label className="member-role-filter">نوع همکار
+              <select value={group} onChange={event => { location.hash = event.target.value; }}>
+                <option value="customers">مشتریان</option>
+                <option value="producers">تولیدکنندگان</option>
+                <option value="service-providers">ارائه‌دهندگان خدمات و ناظران</option>
+              </select>
+            </label>}
             <form className="search" onSubmit={submit}>
               <Search size={18} />
               <input type="search" maxLength={100} aria-label="جستجو در اعضا" placeholder="نام، شماره موبایل یا سازمان"
