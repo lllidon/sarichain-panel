@@ -6,18 +6,15 @@ import CatalogEditor, { type EditorMode } from './CatalogEditor';
 import { demoPage } from './demo';
 
 const headings = {
-  products: ['محصول', 'SKU / شناسه حسابداری', 'دسته‌بندی / برند', 'نوع', 'قیمت پایه', 'وضعیت'],
+  products: ['محصول', 'SKU / شناسه حسابداری', 'دسته‌بندی / برند', 'نوع', 'بازه قیمت (کارسا)', 'وضعیت'],
   categories: ['دسته‌بندی', 'نشانی', 'والد', 'سطح', 'وضعیت'],
   brands: ['برند', 'نشانی', 'توضیح کوتاه', 'وضعیت'],
 };
 
 function price(item: CatalogItem) {
-  if (item.basePrice) return `${number.format(item.basePrice.amount)} ${item.basePrice.currency === 'IRR' ? 'ریال' : item.basePrice.currency}`;
-  if (item.kind === 'variant') {
-    const change = item.priceAdjustment ?? 0;
-    return change === 0 ? 'برابر پایه' : `تعدیل ${new Intl.NumberFormat('fa-IR', { signDisplay: 'exceptZero' }).format(change)}`;
-  }
-  return '—';
+  const { min, max } = item.price ?? { min: 0, max: 0 };
+  const format = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 6 });
+  return (min === max ? format.format(min) : `${format.format(min)} تا ${format.format(max)}`) + ' کارسا';
 }
 
 function CatalogRow({ item, section, demo, canEdit, onEdit }: {

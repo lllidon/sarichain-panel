@@ -36,6 +36,7 @@ export type CatalogItem = {
   level?: number;
   basePrice?: { amount: number; currency: string };
   priceAdjustment?: number;
+  price?: { min: number; max: number } | null;
 };
 
 export type CatalogPage = { items: CatalogItem[]; total: number; page: number; limit: number };

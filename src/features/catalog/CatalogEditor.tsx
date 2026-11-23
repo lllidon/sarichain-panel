@@ -82,6 +82,12 @@ export default function CatalogEditor({ section, mode, item, token, onClose, onS
             body.kind = kind;
             body.sku = value('sku');
             body.itemId = value('itemId');
+            const min = numeric('priceMin');
+            const max = numeric('priceMax');
+            if ((min === undefined) !== (max === undefined) || (min !== undefined && max !== undefined && min > max)) {
+              throw new Error('هر دو حد قیمت را وارد کنید و حداکثر را کمتر از حداقل نگذارید.');
+            }
+            body.price = min === undefined ? null : { min, max };
             const dimensions = ['lengthMm', 'widthMm', 'heightMm'] as const;
             const hasDimensions = dimensions.some(key => value(key));
             if (hasDimensions && dimensions.some(key => !value(key))) throw new Error('هر سه بُعد بسته را وارد کنید.');
@@ -102,7 +108,7 @@ export default function CatalogEditor({ section, mode, item, token, onClose, onS
             } else {
               body.categoryId = value('categoryId');
               body.brandId = value('brandId') || null;
-              body.basePrice = { amount: numeric('amount'), currency: value('currency') };
+              if (value('amount')) body.basePrice = { amount: numeric('amount'), currency: value('currency') };
             }
           }
         }
@@ -164,10 +170,12 @@ export default function CatalogEditor({ section, mode, item, token, onClose, onS
                         <label>برند<select aria-label="برند" name="brandId" defaultValue={item?.brandId?._id ?? ''}>
                           <option value="">بدون برند</option>{brands.map(brand => <option key={brand._id} value={brand._id}>{brand.name}</option>)}
                         </select></label>
-                        <label>مبلغ پایه<input name="amount" type="number" step="1" min="0" max={Number.MAX_SAFE_INTEGER} defaultValue={item?.basePrice?.amount} required /></label>
+                        <label>مبلغ پایهٔ قدیمی<input name="amount" type="number" step="1" min="0" max={Number.MAX_SAFE_INTEGER} defaultValue={item?.basePrice?.amount} /></label>
                         <label>کد ارز<input name="currency" dir="ltr" pattern="[A-Za-z]{3}" defaultValue={item?.basePrice?.currency ?? 'IRR'} required /></label>
                       </>
                     )}
+                    <label>حداقل قیمت (کارسا)<input name="priceMin" type="number" min="0" max="1000000" step="0.000001" defaultValue={item?.price?.min} /></label>
+                    <label>حداکثر قیمت (کارسا)<input name="priceMax" type="number" min="0" max="1000000" step="0.000001" defaultValue={item?.price?.max} /></label>
                     <details className="editor-wide editor-details">
                       <summary>مشخصات فیزیکی و گزینه‌ها</summary>
                       <div className="editor-fields">
