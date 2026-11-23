@@ -98,6 +98,7 @@ export default function CatalogEditor({ section, mode, item, token, onClose, onS
             }
             body.price = min === undefined ? null : { min, max };
             body.saleUnit = value('saleUnit');
+            body.maxOrderQuantity = numeric('maxOrderQuantity') ?? null;
             body.saleUnits = saleUnits.map(unit => ({ code: unit.code.trim(), name: unit.name.trim(), quantity: Number(unit.quantity) }));
             const dimensions = ['lengthMm', 'widthMm', 'heightMm'] as const;
             const hasDimensions = dimensions.some(key => value(key));
@@ -211,6 +212,10 @@ export default function CatalogEditor({ section, mode, item, token, onClose, onS
                     </fieldset>
                     <fieldset className="editor-wide sale-unit-editor">
                       <legend>واحدهای فروش</legend>
+                      <label>سقف خرید در هر سفارش (واحد اصلی)
+                        <input name="maxOrderQuantity" type="number" min="1" max={Number.MAX_SAFE_INTEGER} step="1"
+                          defaultValue={item?.maxOrderQuantity ?? ''} placeholder="بدون سقف تعیین‌شده" />
+                      </label>
                       <label>واحد اصلی<input name="saleUnit" maxLength={40} placeholder="مثلاً کیلوگرم" defaultValue={item?.saleUnit} /></label>
                       {saleUnits.map((unit, index) => <div className="sale-unit-row" key={index}>
                         <label>نام واحد فرعی<input value={unit.name} maxLength={40} placeholder="مثلاً بسته" required

@@ -18,6 +18,7 @@ export type CatalogItem = {
   thumbnailUrl?: string;
   imageUrl?: string;
   gallery?: string[];
+  maxOrderQuantity?: number | null;
   shortDescription?: string;
   description?: string;
   tagIds?: NamedRecord[];
