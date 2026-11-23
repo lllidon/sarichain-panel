@@ -264,3 +264,7 @@ td svg { vertical-align: middle; color: var(--muted); }
   border-radius: .5rem;
   padding: .45rem;
 }
+
+.sale-unit-editor { min-inline-size: 0; display: grid; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; }
+.sale-unit-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 125px), 1fr)); gap: 8px; align-items: end; }
+.sale-unit-editor button { justify-self: start; padding: 6px 9px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-alt); color: var(--green); }

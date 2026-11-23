@@ -12,6 +12,7 @@ export default function CatalogEditor({ section, mode, item, token, onClose, onS
   onClose: () => void; onSaved: () => void; onExpired: () => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const [saleUnits, setSaleUnits] = useState(() => (item?.saleUnits ?? []).map(unit => ({ ...unit, quantity: String(unit.quantity) })));
   const [kind, setKind] = useState(item?.kind ?? 'master');
   const [tags, setTags] = useState(item?.tagIds ?? []);
   const [categories, setCategories] = useState<CatalogItem[]>([]);
@@ -88,6 +89,8 @@ export default function CatalogEditor({ section, mode, item, token, onClose, onS
               throw new Error('هر دو حد قیمت را وارد کنید و حداکثر را کمتر از حداقل نگذارید.');
             }
             body.price = min === undefined ? null : { min, max };
+            body.saleUnit = value('saleUnit');
+            body.saleUnits = saleUnits.map(unit => ({ code: unit.code.trim(), name: unit.name.trim(), quantity: Number(unit.quantity) }));
             const dimensions = ['lengthMm', 'widthMm', 'heightMm'] as const;
             const hasDimensions = dimensions.some(key => value(key));
             if (hasDimensions && dimensions.some(key => !value(key))) throw new Error('هر سه بُعد بسته را وارد کنید.');
@@ -176,6 +179,21 @@ export default function CatalogEditor({ section, mode, item, token, onClose, onS
                     )}
                     <label>حداقل قیمت (کارسا)<input name="priceMin" type="number" min="0" max="1000000" step="0.000001" defaultValue={item?.price?.min} /></label>
                     <label>حداکثر قیمت (کارسا)<input name="priceMax" type="number" min="0" max="1000000" step="0.000001" defaultValue={item?.price?.max} /></label>
+                    <fieldset className="editor-wide sale-unit-editor">
+                      <legend>واحدهای فروش</legend>
+                      <label>واحد اصلی<input name="saleUnit" maxLength={40} placeholder="مثلاً کیلوگرم" defaultValue={item?.saleUnit} /></label>
+                      {saleUnits.map((unit, index) => <div className="sale-unit-row" key={index}>
+                        <label>نام واحد فرعی<input value={unit.name} maxLength={40} placeholder="مثلاً بسته" required
+                          onChange={event => setSaleUnits(rows => rows.map((row, rowIndex) => rowIndex === index ? { ...row, name: event.target.value } : row))} /></label>
+                        <label>کد واحد<input value={unit.code} dir="ltr" pattern="[a-z0-9][a-z0-9\-]{0,29}" placeholder="pack" required
+                          onChange={event => setSaleUnits(rows => rows.map((row, rowIndex) => rowIndex === index ? { ...row, code: event.target.value } : row))} /></label>
+                        <label>تعداد واحد اصلی در هر واحد فرعی<input type="number" min="2" max="1000" step="1" value={unit.quantity} required
+                          onChange={event => setSaleUnits(rows => rows.map((row, rowIndex) => rowIndex === index ? { ...row, quantity: event.target.value } : row))} /></label>
+                        <button type="button" onClick={() => setSaleUnits(rows => rows.filter((_, rowIndex) => rowIndex !== index))}>حذف واحد</button>
+                      </div>)}
+                      <button type="button" disabled={saleUnits.length >= 6}
+                        onClick={() => setSaleUnits(rows => [...rows, { code: '', name: '', quantity: '' }])}>افزودن واحد فرعی</button>
+                    </fieldset>
                     <details className="editor-wide editor-details">
                       <summary>مشخصات فیزیکی و گزینه‌ها</summary>
                       <div className="editor-fields">
