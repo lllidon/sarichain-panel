@@ -133,7 +133,8 @@ export default function CatalogView({ section, token, canEdit, onExpired }: { se
       const rows = await readCatalogChoices(section, token, new AbortController().signal);
       const plain = rows.map(item => Object.fromEntries(excelColumns.map(key => {
         const value = (item as unknown as Record<string, unknown>)[key];
-        return [key, value && typeof value === 'object' && !Array.isArray(value) && '_id' in value
+        return [key, Array.isArray(value) ? value.map(entry => entry && typeof entry === 'object' && '_id' in entry
+          ? (entry as { _id: string })._id : entry) : value && typeof value === 'object' && '_id' in value
           ? (value as { _id: string })._id : value];
       })));
       downloadCsv('sarichain-' + section, plain, excelColumns);
