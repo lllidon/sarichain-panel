@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { ArrowDownRight, ChevronLeft, ChevronRight, Pencil, Plus, Search, Trash2, X, Zap } from 'lucide-react';
+import { ArrowDownRight, ChevronLeft, ChevronRight, Pencil, Plus, Search, Trash2, X, Zap }, Download, Upload } from 'lucide-react';
 import { ApiError, readCatalog, readCatalogChoices, saveCatalog } from '../../api';
 import { csvValue, downloadCsv, readCsv } from '../../lib/csv';
 import { type CatalogItem, type CatalogPage, type Section, number, sections } from './catalog';
@@ -181,7 +181,12 @@ export default function CatalogView({ section, token, canEdit, onExpired }: { se
       <div className="page-heading">
         <div className="page-icon"><Icon size={25} /></div>
         <div><h1>{sections[section].label}</h1><p>کاتالوگ ساری چین</p></div>
-        {canEdit && <><button type="button" className="add-record" disabled={excelBusy} onClick={exportExcel}>خروجی Excel</button><button type="button" className="add-record" disabled={excelBusy} onClick={() => fileInput.current?.click()}>ورود Excel</button><input ref={fileInput} hidden type="file" accept=".csv,text/csv" onChange={event => void importExcel(event.target.files?.[0])} /><button type="button" className="add-record" onClick={() => edit('create')}><Plus size={17} /> افزودن</button></>}
+        <div className="page-heading-actions">
+          <button type="button" className="data-action-button" disabled={excelBusy} onClick={exportExcel}><Download size={17} /> دریافت خروجی</button>
+          <button type="button" className="data-action-button data-action-secondary" disabled={excelBusy} onClick={() => fileInput.current?.click()}><Upload size={17} /> ورود اطلاعات</button>
+          <input ref={fileInput} hidden type="file" accept=".csv,text/csv" onChange={event => void importExcel(event.target.files?.[0])} />
+          <button type="button" className="add-record" onClick={() => edit('create')}><Plus size={17} /> افزودن</button>
+        </div>
       </div>
       {notice && <p className="catalog-notice" role="status">{notice}</p>}
       <section className="table-card" aria-label={`فهرست ${sections[section].label}`}>
