@@ -1,6 +1,7 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowDownRight, ChevronLeft, ChevronRight, Pencil, Plus, Search, Trash2, X, Zap } from 'lucide-react';
-import { ApiError, readCatalog } from '../../api';
+import { ApiError, readCatalog, readCatalogChoices, saveCatalog } from '../../api';
+import { csvValue, downloadCsv, readCsv } from '../../lib/csv';
 import { type CatalogItem, type CatalogPage, type Section, number, sections } from './catalog';
 import CatalogEditor, { type EditorMode } from './CatalogEditor';
 import { demoPage } from './demo';
@@ -81,6 +82,8 @@ export default function CatalogView({ section, token, canEdit, onExpired }: { se
   const [retry, setRetry] = useState(0);
   const [editor, setEditor] = useState<{ mode: EditorMode; item?: CatalogItem } | null>(null);
   const [notice, setNotice] = useState('');
+  const [excelBusy, setExcelBusy] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
   const demo = token === null;
   const result = demo ? demoPage(section, search, page) : data;
   const pages = result ? Math.min(10000, Math.max(1, Math.ceil(result.total / result.limit))) : 1;
@@ -117,6 +120,55 @@ export default function CatalogView({ section, token, canEdit, onExpired }: { se
     setRetry(value => value + 1);
   }
 
+  const excelColumns = section === 'products'
+    ? ['_id','name','slug','sku','itemId','kind','categoryId','brandId','masterId','basePrice','price','saleUnit','saleUnits','gallery','maxOrderQuantity','priceAdjustment','physical','options','shortDescription','description','imageUrl','thumbnailUrl','isActive','tagIds']
+    : section === 'categories'
+      ? ['_id','name','slug','parentId','shortDescription','description','imageUrl','thumbnailUrl','isActive','tagIds']
+      : ['_id','name','slug','shortDescription','description','imageUrl','thumbnailUrl','isActive','tagIds'];
+
+  async function exportExcel() {
+    if (!token) return;
+    setExcelBusy(true); setNotice('');
+    try {
+      const rows = await readCatalogChoices(section, token, new AbortController().signal);
+      const plain = rows.map(item => Object.fromEntries(excelColumns.map(key => {
+        const value = (item as unknown as Record<string, unknown>)[key];
+        return [key, value && typeof value === 'object' && !Array.isArray(value) && '_id' in value
+          ? (value as { _id: string })._id : value];
+      })));
+      downloadCsv('sarichain-' + section, plain, excelColumns);
+      setNotice('فایل اکسل‌خوان با موفقیت آماده شد.');
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) onExpired();
+      else setNotice(error instanceof Error ? error.message : 'خروجی دریافت نشد.');
+    } finally { setExcelBusy(false); }
+  }
+
+  async function importExcel(file?: File) {
+    if (!file || !token) return;
+    setExcelBusy(true); setNotice('');
+    try {
+      const rows = await readCsv(file);
+      if (!rows.length) throw new Error('فایل ردیفی برای ورود ندارد.');
+      let success = 0; const failures: string[] = [];
+      for (const [index, row] of rows.entries()) {
+        try {
+          const body = Object.fromEntries(Object.entries(row).filter(([key]) => excelColumns.includes(key) && key !== '_id')
+            .map(([key, value]) => [key, csvValue(value)]));
+          for (const key of ['categoryId','brandId','masterId','parentId']) {
+            const value = body[key];
+            if (value && typeof value === 'object' && '_id' in value) body[key] = (value as { _id: string })._id;
+          }
+          await saveCatalog(section, token, body, row._id || undefined);
+          success++;
+        } catch (error) { failures.push('ردیف ' + (index + 2) + ': ' + (error instanceof ApiError ? error.message : 'اطلاعات نامعتبر')); }
+      }
+      setNotice(success + ' ردیف ثبت شد.' + (failures.length ? ' ' + failures.slice(0, 5).join('؛ ') : ''));
+      setRetry(value => value + 1);
+    } catch (error) { setNotice(error instanceof Error ? error.message : 'ورود فایل انجام نشد.'); }
+    finally { setExcelBusy(false); if (fileInput.current) fileInput.current.value = ''; }
+  }
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSearch(draft.trim());
@@ -128,7 +180,7 @@ export default function CatalogView({ section, token, canEdit, onExpired }: { se
       <div className="page-heading">
         <div className="page-icon"><Icon size={25} /></div>
         <div><h1>{sections[section].label}</h1><p>کاتالوگ ساری چین</p></div>
-        {canEdit && <button type="button" className="add-record" onClick={() => edit('create')}><Plus size={17} /> افزودن</button>}
+        {canEdit && <><button type="button" className="add-record" disabled={excelBusy} onClick={exportExcel}>خروجی Excel</button><button type="button" className="add-record" disabled={excelBusy} onClick={() => fileInput.current?.click()}>ورود Excel</button><input ref={fileInput} hidden type="file" accept=".csv,text/csv" onChange={event => void importExcel(event.target.files?.[0])} /><button type="button" className="add-record" onClick={() => edit('create')}><Plus size={17} /> افزودن</button></>}
       </div>
       {notice && <p className="catalog-notice" role="status">{notice}</p>}
       <section className="table-card" aria-label={`فهرست ${sections[section].label}`}>
