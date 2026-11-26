@@ -166,3 +166,38 @@ export function readTransportVehicles(token: string, search: string, page: numbe
     signal, headers: { Authorization: `Bearer ${token}` },
   });
 }
+
+export type TransportOrderCandidate = {
+  memberId: string; fullName: string; phone?: string; city?: string;
+  vehicleType: string; model: string; capacityKg: number;
+};
+export type TransportOrder = {
+  _id: string; memberId: string; customer?: { fullName?: string; phone?: string; organization?: string };
+  stops: Array<{ kind: 'pickup' | 'dropoff'; label: string; province: string; city: string; address: string; latitude: number; longitude: number }>;
+  goodsType: string; weightKg: number; volumeM3: number; urgency: string; deadline: string; description?: string;
+  quote: { category: string; distanceKm: number; standardKar: number; specialKar: number };
+  status: string; candidates: TransportOrderCandidate[]; createdAt: string;
+};
+export type TransportOrderPage = { items: TransportOrder[]; total: number; page: number; limit: number };
+export type TransportTariffs = {
+  intracityBaseKar: number; intercityBaseKar: number; interprovincialBaseKar: number;
+  perKmKar: number; perKgKar: number; perCubicMeterKar: number;
+  hourlyMultiplier: number; dailyMultiplier: number; multidayMultiplier: number; specialMultiplier: number;
+};
+
+export function readTransportOrders(token: string, search: string, page: number, signal: AbortSignal) {
+  const query = new URLSearchParams({ search, page: String(page), limit: String(pageSize) });
+  return request<TransportOrderPage>(`/organization/transport-orders?${query}`, {
+    signal, headers: { Authorization: `Bearer ${token}` },
+  });
+}
+export function reviewTransportOrder(token: string, id: string, status: 'approved' | 'rejected', specialCarrierIds: string[]) {
+  return write<{ id: string; status: string; matchedCount?: number; specialCount?: number }>(
+    `/organization/transport-orders/${id}`, 'PATCH', token, { status, specialCarrierIds });
+}
+export function readTransportTariffs(token: string, signal: AbortSignal) {
+  return request<TransportTariffs>('/organization/transport-tariffs', { signal, headers: { Authorization: `Bearer ${token}` } });
+}
+export function saveTransportTariffs(token: string, fields: TransportTariffs) {
+  return write<TransportTariffs>('/organization/transport-tariffs', 'PATCH', token, fields);
+}
