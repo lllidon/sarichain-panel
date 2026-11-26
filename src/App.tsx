@@ -193,6 +193,7 @@ export default function App() {
                 ? <TransportOrdersView token={token} onExpired={expire} />
               : isTransport && token && access?.role === 'management'
                 ? <TransportVehiclesView token={token} onExpired={expire} />
+                : (isTransport || isTransportOrders) ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
                 : isDirectory
                 ? <SuppliersView token={token} onExpired={expire} />
                 : isMembers
