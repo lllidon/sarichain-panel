@@ -14,7 +14,7 @@ const statusLabels: Record<string, string> = {
   assigned: 'واگذار شده', in_transit: 'در حال حمل', delivered: 'تحویل شده', cancelled: 'لغو شده',
 };
 const categoryLabels: Record<string, string> = { intracity: 'درون‌شهری', intercity: 'بین‌شهری', interprovincial: 'بین‌استانی' };
-const urgencyLabels: Record<string, string> = { hourly: 'ساعتی / فوری', daily: 'روزانه', multiday: 'چندروزه' };
+const urgencyLabels: Record<string, string> = { normal: 'عادی', special: 'ویژه', express: 'اکسپرس', urgent: 'فوری', hourly: 'ساعتی / فوری', daily: 'روزانه', multiday: 'چندروزه' };
 const vehicleLabels: Record<string, string> = { motorcycle: 'موتورسیکلت', car: 'سواری', pickup: 'وانت', van: 'ون', truckette: 'کامیونت', truck: 'کامیون' };
 const dateFormat = new Intl.DateTimeFormat('fa-IR', { dateStyle: 'medium', timeStyle: 'short' });
 
@@ -133,14 +133,14 @@ export default function TransportOrdersView({ token, onExpired }: { token: strin
               <span><Package size={15} /> {number.format(order.volumeM3)} مترمکعب</span>
               <span><Clock3 size={15} /> {urgencyLabels[order.urgency] || '—'}</span>
               <span><Clock3 size={15} /> مهلت: {order.deadline ? dateFormat.format(new Date(order.deadline)) : '—'}</span>
-              <span>{categoryLabels[order.quote?.category] || '—'} · {number.format(order.quote?.distanceKm || 0)} کیلومتر</span>
+              <span>{categoryLabels[order.quote?.category] || '—'} · زون {order.quote?.zoneId?.replace('zone-','') ?? '—'} · {number.format(order.quote?.distanceKm || 0)} کیلومتر · {order.quote?.distanceSource === 'road' ? 'مسیر جاده‌ای' : 'تخمین مستقیم'}</span>
             </div>
             <div className="transport-admin-route">{order.stops.map((stop, index) => <div key={index}>
               <MapPin size={15} /><span><b>{stop.kind === 'pickup' ? 'مبدأ' : 'مقصد'}: {stop.label}</b><small>{stop.province}، {stop.city} · {stop.address}</small></span>
               <a href={'https://www.openstreetmap.org/?mlat=' + stop.latitude + '&mlon=' + stop.longitude + '#map=14/' + stop.latitude + '/' + stop.longitude} target="_blank" rel="noreferrer">نقشه</a>
             </div>)}</div>
             <div className="transport-admin-quote"><span>پیشنهاد عادی: <b>{number.format(order.quote?.standardKar || 0)} کارسا</b></span><span>پیشنهاد ویژه: <b>{number.format(order.quote?.specialKar || 0)} کارسا</b></span></div>
-            {order.description && <p className="transport-admin-description">{order.description}</p>}
+            {order.quote?.routingPending && <p className="catalog-notice error-message" role="status">مسافت جاده‌ای از سرویس نقشه دریافت نشده؛ این مبلغ فقط تخمین اولیه است و پیش از تأیید نهایی باید مسیر جاده‌ای محاسبه شود.</p>}\n            {order.description && <p className="transport-admin-description">{order.description}</p>}
             {reviewable && <div className="transport-candidates">
               <h3>همکاران واجد شرایط ({number.format(order.candidates?.length || 0)})</h3>
               {!order.candidates?.length ? <p>راننده تأییدشده با ظرفیت کافی برای این بار پیدا نشد.</p> :
