@@ -204,7 +204,7 @@ export function saveTransportTariffs(token: string, fields: TransportTariffs) {
 
 export type AccountUpgradeRequest = {
   _id: string; memberId: string; kind: 'transport' | 'producer'; status: 'pending' | 'approved' | 'rejected';
-  producerType?: string; requestedCategoryIds?: string[];
+  producerType?: string; requestedCategoryIds?: string[]; requestedCategoryLabels?: string[];
   vehicle?: { type: string; model: string; year: number; capacityKg: number; capacityM3?: number; plate: string; license: string };
   memberSnapshot?: { fullName?: string; phone?: string; organization?: string };
   documents: Array<{ type: string; fileName: string; mimeType: string; dataUrl: string }>;
