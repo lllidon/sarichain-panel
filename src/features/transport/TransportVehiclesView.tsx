@@ -12,8 +12,6 @@ const vehicleTypes: Record<string, string> = {
   truck: 'کامیون',
 };
 
-const dateFormatter = new Intl.DateTimeFormat('fa-IR', { dateStyle: 'medium' });
-
 export default function TransportVehiclesView({ token, onExpired }: { token: string; onExpired: () => void }) {
   const [draft, setDraft] = useState('');
   const [search, setSearch] = useState('');
