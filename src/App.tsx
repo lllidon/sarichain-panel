@@ -110,6 +110,7 @@ export default function App() {
   const isMembers = Object.hasOwn(memberSections, visibleSection);
   const isDirectory = visibleSection === 'directory';
   const current = isOrders ? { label: 'سفارش‌ها' } : isAccountUpgrades ? { label: 'درخواست ارتقای حساب' } : isTransportOrders ? { label: 'سفارش‌های حمل' } : isTransport ? { label: 'وسایل نقلیه' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
+  const canReviewUpgrades = access?.role === 'management' || access?.role === 'admin';
   const hasNavigation = signedIn && Boolean(demo || access);
   const identity = (
     <a href={clientOnly ? '#orders' : '#products'} className="identity"><img src="/img/sarichain-logo.svg" alt="پنل ساری‌چین" width="116" height="39" /></a>
@@ -134,7 +135,7 @@ export default function App() {
         <h2>اعضا</h2>
         <a href="#users" aria-current={visibleSection === 'users' ? 'page' : undefined}><Users size={18} /> کاربران پنل</a>
         <a href="#customers" aria-current={isMembers && visibleSection !== 'users' ? 'page' : undefined}><Users size={18} /> مشتریان و همکاران</a>
-        {token && access?.role === 'management' && <a href="#account-upgrades" aria-current={isAccountUpgrades ? 'page' : undefined}><FileCheck2 size={18} /> درخواست ارتقای حساب</a>}
+        {token && canReviewUpgrades && <a href="#account-upgrades" aria-current={isAccountUpgrades ? 'page' : undefined}><FileCheck2 size={18} /> درخواست ارتقای حساب</a>}
       </nav>
       {token && access?.role === 'management' && <nav className="sidebar-menu members-menu" aria-label="حمل‌ونقل">
         <h2>عملیات</h2>
@@ -194,7 +195,7 @@ export default function App() {
               ? <OrdersView token={token} onExpired={expire} />
               : isTransportOrders && token && access?.role === 'management'
                 ? <TransportOrdersView token={token} onExpired={expire} />
-              : isAccountUpgrades && token && access?.role === 'management'
+              : isAccountUpgrades && token && canReviewUpgrades
                 ? <AccountUpgradeRequestsView token={token} onExpired={expire} />
               : isAccountUpgrades ? <main className="workspace"><p role="alert">این بخش فقط برای مدیریت در دسترس است.</p></main>
               : isTransport && token && access?.role === 'management'
