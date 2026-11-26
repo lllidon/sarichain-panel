@@ -63,7 +63,7 @@ export default function AccountUpgradeRequestsView({ token, onExpired }: { token
           <div><dt>گواهینامه</dt><dd>{item.vehicle.license}</dd></div>
         </dl>}
         {item.producerType && <p>نوع تولیدکننده: <b>{item.producerType}</b></p>}
-        {item.requestedCategoryIds?.length ? <p>دسته‌بندی‌های درخواستی: <bdi>{item.requestedCategoryIds.join('، ')}</bdi></p> : null}
+        {item.requestedCategoryIds?.length ? <p>دسته‌بندی‌های درخواستی: <bdi>{(item.requestedCategoryLabels || item.requestedCategoryIds).join('، ')}</bdi></p> : null}
         <h3>مدارک ارسالی</h3>
         <div className="account-upgrade-admin-docs">{item.documents.map(doc => <a key={doc.type} href={doc.dataUrl} target="_blank" rel="noreferrer">
           {doc.mimeType.startsWith('image/') ? <img src={doc.dataUrl} alt={docLabels[doc.type] || doc.type}/> : <FileText size={28}/>}
