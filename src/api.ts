@@ -211,7 +211,7 @@ export type AccountUpgradeRequest = {
   reviewNote?: string; createdAt: string;
 };
 export function readAccountUpgradeRequests(token: string, signal: AbortSignal) {
-  return request<{ items: AccountUpgradeRequest[] }>('/members/account-upgrades', {
+  return request<{ items: AccountUpgradeRequest[] }>('/members/account-upgrades/requests', {
     signal, headers: { Authorization: `Bearer ${token}` },
   });
 }
