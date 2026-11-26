@@ -176,7 +176,7 @@ export type TransportOrder = {
   stops: Array<{ kind: 'pickup' | 'dropoff'; label: string; province: string; city: string; address: string; latitude: number; longitude: number }>;
   goodsType: string; weightKg: number; volumeM3: number; urgency: string; deadline: string; description?: string;
   quote: { category: string; distanceKm: number; standardKar: number; specialKar: number };
-  status: string; candidates: TransportOrderCandidate[]; createdAt: string;
+  status: string; candidates: TransportOrderCandidate[]; specialCarrierIds?: string[]; createdAt: string;
 };
 export type TransportOrderPage = { items: TransportOrder[]; total: number; page: number; limit: number };
 export type TransportTariffs = {
