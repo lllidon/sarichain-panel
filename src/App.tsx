@@ -131,10 +131,10 @@ export default function App() {
         <a href="#users" aria-current={visibleSection === 'users' ? 'page' : undefined}><Users size={18} /> کاربران پنل</a>
         <a href="#customers" aria-current={isMembers && visibleSection !== 'users' ? 'page' : undefined}><Users size={18} /> همکاران</a>
       </nav>
-      <nav className="sidebar-menu members-menu" aria-label="حمل‌ونقل">
+      {token && access?.role === 'management' && <nav className="sidebar-menu members-menu" aria-label="حمل‌ونقل">
         <h2>عملیات</h2>
         <a href="#transport" aria-current={isTransport ? 'page' : undefined}><Truck size={18} /> مدیریت حمل‌ونقل</a>
-      </nav>
+      </nav>}
       <nav className="sidebar-menu members-menu" aria-label="معرفی">
         <h2>معرفی</h2>
         <a href="#directory" aria-current={isDirectory ? 'page' : undefined}><BookUser size={18} /> مواد اولیه</a>
