@@ -175,7 +175,7 @@ export type TransportOrder = {
   _id: string; memberId: string; customer?: { fullName?: string; phone?: string; organization?: string };
   stops: Array<{ kind: 'pickup' | 'dropoff'; label: string; province: string; city: string; address: string; latitude: number; longitude: number }>;
   goodsType: string; weightKg: number; volumeM3: number; urgency: string; deadline: string; description?: string;
-  quote: { category: string; distanceKm: number; standardKar: number; specialKar: number };
+  quote: { category: string; zoneId?: string; speed?: string; distanceKm: number; directDistanceKm?: number; roadDistanceKm?: number | null; distanceSource?: 'road' | 'direct_estimate'; billableWeightKg?: number; standardKar: number; specialKar: number; routingPending?: boolean };
   status: string; candidates: TransportOrderCandidate[]; specialCarrierIds?: string[]; createdAt: string;
 };
 export type TransportOrderPage = { items: TransportOrder[]; total: number; page: number; limit: number };
