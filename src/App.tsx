@@ -2,10 +2,11 @@ import { readAccess, ApiError } from './api';
 import OrdersView from './features/organization/OrdersView';
 import TransportVehiclesView from './features/transport/TransportVehiclesView';
 import TransportOrdersView from './features/transport/TransportOrdersView';
+import AccountUpgradeRequestsView from './features/members/AccountUpgradeRequestsView';
 import SettingsDrawer from './features/organization/SettingsDrawer';
 import { roleLabels, type Access } from './features/organization/organization';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { BookUser, ClipboardList, LogOut, Menu, Moon, Settings, Sun, Truck, Users, X } from 'lucide-react';
+import { BookUser, ClipboardList, FileCheck2, LogOut, Menu, Moon, Settings, Sun, Truck, Users, X } from 'lucide-react';
 import Login from './features/auth/Login';
 import CatalogView from './features/catalog/CatalogView';
 import SuppliersView from './features/directory/SuppliersView';
@@ -16,9 +17,9 @@ import { type Section, sections } from './features/catalog/catalog';
 const tokenKey = 'sarichain-panel-token';
 const demoKey = 'sarichain-panel-demo';
 
-function getSection(): Section | MemberGroup | 'directory' | 'orders' | 'transport' | 'transport-orders' {
+function getSection(): Section | MemberGroup | 'directory' | 'orders' | 'transport' | 'transport-orders' | 'account-upgrades' {
   const section = location.hash.slice(1);
-  if (section === 'directory' || section === 'orders' || section === 'transport' || section === 'transport-orders') return section;
+  if (section === 'directory' || section === 'orders' || section === 'transport' || section === 'transport-orders' || section === 'account-upgrades') return section;
   if (Object.hasOwn(memberSections, section)) return section as MemberGroup;
   return Object.hasOwn(sections, section) ? section as Section : 'products';
 }
@@ -105,9 +106,10 @@ export default function App() {
   const isOrders = visibleSection === 'orders';
   const isTransport = visibleSection === 'transport';
   const isTransportOrders = visibleSection === 'transport-orders';
+  const isAccountUpgrades = visibleSection === 'account-upgrades';
   const isMembers = Object.hasOwn(memberSections, visibleSection);
   const isDirectory = visibleSection === 'directory';
-  const current = isOrders ? { label: 'سفارش‌ها' } : isTransportOrders ? { label: 'سفارش‌های حمل' } : isTransport ? { label: 'وسایل نقلیه' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
+  const current = isOrders ? { label: 'سفارش‌ها' } : isAccountUpgrades ? { label: 'درخواست ارتقای حساب' } : isTransportOrders ? { label: 'سفارش‌های حمل' } : isTransport ? { label: 'وسایل نقلیه' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
   const hasNavigation = signedIn && Boolean(demo || access);
   const identity = (
     <a href={clientOnly ? '#orders' : '#products'} className="identity"><img src="/img/sarichain-logo.svg" alt="پنل ساری‌چین" width="116" height="39" /></a>
@@ -131,7 +133,8 @@ export default function App() {
       <nav className="sidebar-menu members-menu" aria-label="اعضا">
         <h2>اعضا</h2>
         <a href="#users" aria-current={visibleSection === 'users' ? 'page' : undefined}><Users size={18} /> کاربران پنل</a>
-        <a href="#customers" aria-current={isMembers && visibleSection !== 'users' ? 'page' : undefined}><Users size={18} /> همکاران</a>
+        <a href="#customers" aria-current={isMembers && visibleSection !== 'users' ? 'page' : undefined}><Users size={18} /> مشتریان و همکاران</a>
+        {token && access?.role === 'management' && <a href="#account-upgrades" aria-current={isAccountUpgrades ? 'page' : undefined}><FileCheck2 size={18} /> درخواست ارتقای حساب</a>}
       </nav>
       {token && access?.role === 'management' && <nav className="sidebar-menu members-menu" aria-label="حمل‌ونقل">
         <h2>عملیات</h2>
@@ -191,6 +194,9 @@ export default function App() {
               ? <OrdersView token={token} onExpired={expire} />
               : isTransportOrders && token && access?.role === 'management'
                 ? <TransportOrdersView token={token} onExpired={expire} />
+              : isAccountUpgrades && token && access?.role === 'management'
+                ? <AccountUpgradeRequestsView token={token} onExpired={expire} />
+              : isAccountUpgrades ? <main className="workspace"><p role="alert">این بخش فقط برای مدیریت در دسترس است.</p></main>
               : isTransport && token && access?.role === 'management'
                 ? <TransportVehiclesView token={token} onExpired={expire} />
                 : (isTransport || isTransportOrders) ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
