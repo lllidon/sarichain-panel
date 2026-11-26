@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState, type FormEvent } from 'react';
-import { ChevronLeft, ChevronRight, Pencil, Plus, Search, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Pencil, Plus, Search, X }, Download, Upload } from 'lucide-react';
 import { ApiError, readMembers, saveMember } from '../../api';
 import { csvValue, downloadCsv, readCsv } from '../../lib/csv';
 import { roleLabels, type Access } from '../organization/organization';
@@ -110,7 +110,12 @@ export default function MembersView({ group, token, access, onExpired }: { group
       <div className="page-heading">
         <div className="page-icon"><Icon size={25} /></div>
         <div><h1>{users ? section.label : 'همکاران'}</h1><p>اعضای ساری چین</p></div>
-        {token && data && <><button type="button" className="add-record" disabled={excelBusy} onClick={exportExcel}>خروجی Excel</button><button type="button" className="add-record" disabled={excelBusy} onClick={() => fileInput.current?.click()}>ورود Excel</button><input ref={fileInput} hidden type="file" accept=".csv,text/csv" onChange={event => void importExcel(event.target.files?.[0])} /><button type="button" className="add-record" onClick={() => { setNotice(''); setEditor({}); }}><Plus size={17} /> افزودن عضو</button></>}
+        <div className="page-heading-actions">
+          <button type="button" className="data-action-button" disabled={excelBusy} onClick={exportExcel}><Download size={17} /> دریافت خروجی</button>
+          <button type="button" className="data-action-button data-action-secondary" disabled={excelBusy} onClick={() => fileInput.current?.click()}><Upload size={17} /> ورود اطلاعات</button>
+          <input ref={fileInput} hidden type="file" accept=".csv,text/csv" onChange={event => void importExcel(event.target.files?.[0])} />
+          <button type="button" className="add-record" onClick={() => { setNotice(''); setEditor({}); }}><Plus size={17} /> افزودن عضو</button>
+        </div>
       </div>
       {notice && <p className="catalog-notice" role="status">{notice}</p>}
       <section className="table-card" aria-label={`فهرست ${section.label}`}>
