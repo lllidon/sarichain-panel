@@ -42,7 +42,8 @@ export default function TransportOrdersView({ token, onExpired }: { token: strin
     ]).then(([orders, rates]) => {
       if (controller.signal.aborted) return;
       setData(orders);
-      setSelected(current => ({ ...current, ...Object.fromEntries(orders.items.map(order => [order._id, order.specialCarrierIds ?? []])) }));
+      setSelected(current => ({ ...current, ...Object.fromEntries(orders.items.map(order => [order._id,
+        (order.specialCarrierIds ?? []).filter(id => order.candidates?.some(candidate => candidate.memberId === id))])) }));
       setTariffs(rates);
     }).catch(failure => {
       if (controller.signal.aborted) return;
