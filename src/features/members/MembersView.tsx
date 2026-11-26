@@ -1,6 +1,7 @@
-import { Fragment, useEffect, useState, type FormEvent } from 'react';
+import { Fragment, useEffect, useRef, useState, type FormEvent } from 'react';
 import { ChevronLeft, ChevronRight, Pencil, Plus, Search, X } from 'lucide-react';
-import { ApiError, readMembers } from '../../api';
+import { ApiError, readMembers, saveMember } from '../../api';
+import { csvValue, downloadCsv, readCsv } from '../../lib/csv';
 import { roleLabels, type Access } from '../organization/organization';
 import { number } from '../catalog/catalog';
 import MemberEditor from './MemberEditor';
@@ -15,6 +16,8 @@ export default function MembersView({ group, token, access, onExpired }: { group
   const [revision, refresh] = useState(0);
   const [editor, setEditor] = useState<{ member?: Member }>();
   const [notice, setNotice] = useState('');
+  const [excelBusy, setExcelBusy] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
   const section = memberSections[group];
   const users = group === 'users';
   const Icon = section.icon;
@@ -37,6 +40,58 @@ export default function MembersView({ group, token, access, onExpired }: { group
     return () => controller.abort();
   }, [group, token, search, page, revision, onExpired]);
 
+  const excelColumns = users
+    ? ['_id','fullName','username','phone','role','branchId','profileId','type','city','isActive']
+    : ['_id','fullName','phone','type','organization','province','city','provinceCode','cityCode','address','email','notes','isActive','productionActivity','serviceArea'];
+
+  async function exportExcel() {
+    if (!token) return;
+    setExcelBusy(true); setNotice('');
+    try {
+      const rows: Member[] = [];
+      for (let current = 1; current <= 10000; current++) {
+        const response = await readMembers(group, token, '', current, new AbortController().signal);
+        rows.push(...response.items);
+        if (rows.length >= response.total || !response.items.length) break;
+      }
+      const plain = rows.map(member => Object.fromEntries(excelColumns.map(key => {
+        const value = (member as unknown as Record<string, unknown>)[key];
+        return [key, value && typeof value === 'object' && '_id' in value ? (value as { _id: string })._id : value];
+      })));
+      downloadCsv('sarichain-' + group, plain, excelColumns);
+      setNotice('خروجی اعضا آماده شد.');
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) onExpired();
+      else setNotice('دریافت خروجی انجام نشد.');
+    } finally { setExcelBusy(false); }
+  }
+
+  async function importExcel(file?: File) {
+    if (!file || !token) return;
+    setExcelBusy(true); setNotice('');
+    try {
+      const rows = await readCsv(file);
+      if (!rows.length) throw new Error('فایل ردیفی برای ورود ندارد.');
+      let success = 0; const failures: string[] = [];
+      for (const [index, row] of rows.entries()) {
+        try {
+          if (!row._id) throw new Error('شناسه عضو برای به‌روزرسانی الزامی است.');
+          const body = Object.fromEntries(Object.entries(row).filter(([key]) => excelColumns.includes(key) && key !== '_id')
+            .map(([key, value]) => [key, csvValue(value)]));
+          for (const key of ['branchId','profileId']) {
+            const value = body[key];
+            if (value && typeof value === 'object' && '_id' in value) body[key] = (value as { _id: string })._id;
+          }
+          await saveMember(group, token, body, row._id);
+          success++;
+        } catch (error) { failures.push('ردیف ' + (index + 2) + ': ' + (error instanceof ApiError ? error.message : error instanceof Error ? error.message : 'نامعتبر')); }
+      }
+      setNotice(success + ' عضو به‌روزرسانی شد.' + (failures.length ? ' ' + failures.slice(0, 5).join('؛ ') : ''));
+      refresh(value => value + 1);
+    } catch (error) { setNotice(error instanceof Error ? error.message : 'ورود فایل انجام نشد.'); }
+    finally { setExcelBusy(false); if (fileInput.current) fileInput.current.value = ''; }
+  }
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPage(1);
@@ -55,7 +110,7 @@ export default function MembersView({ group, token, access, onExpired }: { group
       <div className="page-heading">
         <div className="page-icon"><Icon size={25} /></div>
         <div><h1>{users ? section.label : 'همکاران'}</h1><p>اعضای ساری چین</p></div>
-        {token && data && <button type="button" className="add-record" onClick={() => { setNotice(''); setEditor({}); }}><Plus size={17} /> افزودن عضو</button>}
+        {token && data && <><button type="button" className="add-record" disabled={excelBusy} onClick={exportExcel}>خروجی Excel</button><button type="button" className="add-record" disabled={excelBusy} onClick={() => fileInput.current?.click()}>ورود Excel</button><input ref={fileInput} hidden type="file" accept=".csv,text/csv" onChange={event => void importExcel(event.target.files?.[0])} /><button type="button" className="add-record" onClick={() => { setNotice(''); setEditor({}); }}><Plus size={17} /> افزودن عضو</button></>}
       </div>
       {notice && <p className="catalog-notice" role="status">{notice}</p>}
       <section className="table-card" aria-label={`فهرست ${section.label}`}>
