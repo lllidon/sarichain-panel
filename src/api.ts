@@ -169,7 +169,7 @@ export function readTransportVehicles(token: string, search: string, page: numbe
 
 export type TransportOrderCandidate = {
   memberId: string; fullName: string; phone?: string; city?: string;
-  vehicleType: string; model: string; capacityKg: number;
+  vehicleType: string; model: string; capacityKg: number; capacityM3?: number;
 };
 export type TransportOrder = {
   _id: string; memberId: string; customer?: { fullName?: string; phone?: string; organization?: string };
