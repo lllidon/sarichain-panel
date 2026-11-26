@@ -145,7 +145,7 @@ export default function TransportOrdersView({ token, onExpired }: { token: strin
                 <div className="candidate-grid">{order.candidates.map(candidate => <label key={candidate.memberId}>
                   <input type="checkbox" checked={special.includes(candidate.memberId)} disabled={!special.includes(candidate.memberId) && special.length >= 2}
                     onChange={event => toggleSpecial(order._id, candidate.memberId, event.target.checked)} />
-                  <span><b>{candidate.fullName}</b><small>{vehicleLabels[candidate.vehicleType] || candidate.vehicleType} · {candidate.model} · ظرفیت {number.format(candidate.capacityKg)} کیلوگرم</small><small>{candidate.city || 'شهر ثبت نشده'} · {candidate.phone || '—'}</small></span>
+                  <span><b>{candidate.fullName}</b><small>{vehicleLabels[candidate.vehicleType] || candidate.vehicleType} · {candidate.model} · ظرفیت {number.format(candidate.capacityKg)} کیلوگرم{candidate.capacityM3 != null ? ' · ' + number.format(candidate.capacityM3) + ' مترمکعب' : ' · ظرفیت حجمی ثبت نشده'}</small><small>{candidate.city || 'شهر ثبت نشده'} · {candidate.phone || '—'}</small></span>
                   {special.includes(candidate.memberId) && <em>پیشنهاد ویژه</em>}
                 </label>)}</div>}
               <div className="transport-review-actions">
