@@ -2,11 +2,12 @@ import { readAccess, ApiError } from './api';
 import OrdersView from './features/organization/OrdersView';
 import TransportVehiclesView from './features/transport/TransportVehiclesView';
 import TransportOrdersView from './features/transport/TransportOrdersView';
+import TransportZoneTariffsView from './features/transport/TransportZoneTariffsView';
 import AccountUpgradeRequestsView from './features/members/AccountUpgradeRequestsView';
 import SettingsDrawer from './features/organization/SettingsDrawer';
 import { roleLabels, type Access } from './features/organization/organization';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { BookUser, ClipboardList, FileCheck2, LogOut, Menu, Moon, Settings, Sun, Truck, Users, X } from 'lucide-react';
+import { BookUser, Calculator, ClipboardList, FileCheck2, LogOut, Menu, Moon, Settings, Sun, Truck, Users, X } from 'lucide-react';
 import Login from './features/auth/Login';
 import CatalogView from './features/catalog/CatalogView';
 import SuppliersView from './features/directory/SuppliersView';
@@ -17,9 +18,9 @@ import { type Section, sections } from './features/catalog/catalog';
 const tokenKey = 'sarichain-panel-token';
 const demoKey = 'sarichain-panel-demo';
 
-function getSection(): Section | MemberGroup | 'directory' | 'orders' | 'transport' | 'transport-orders' | 'account-upgrades' {
+function getSection(): Section | MemberGroup | 'directory' | 'orders' | 'transport' | 'transport-orders' | 'transport-tariffs' | 'account-upgrades' {
   const section = location.hash.slice(1);
-  if (section === 'directory' || section === 'orders' || section === 'transport' || section === 'transport-orders' || section === 'account-upgrades') return section;
+  if (section === 'directory' || section === 'orders' || section === 'transport' || section === 'transport-orders' || section === 'transport-tariffs' || section === 'account-upgrades') return section;
   if (Object.hasOwn(memberSections, section)) return section as MemberGroup;
   return Object.hasOwn(sections, section) ? section as Section : 'products';
 }
@@ -106,10 +107,11 @@ export default function App() {
   const isOrders = visibleSection === 'orders';
   const isTransport = visibleSection === 'transport';
   const isTransportOrders = visibleSection === 'transport-orders';
+  const isTransportTariffs = visibleSection === 'transport-tariffs';
   const isAccountUpgrades = visibleSection === 'account-upgrades';
   const isMembers = Object.hasOwn(memberSections, visibleSection);
   const isDirectory = visibleSection === 'directory';
-  const current = isOrders ? { label: 'سفارش‌ها' } : isAccountUpgrades ? { label: 'درخواست ارتقای حساب' } : isTransportOrders ? { label: 'سفارش‌های حمل' } : isTransport ? { label: 'وسایل نقلیه' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
+  const current = isOrders ? { label: 'سفارش‌ها' } : isAccountUpgrades ? { label: 'درخواست ارتقای حساب' } : isTransportOrders ? { label: 'سفارش‌های حمل' } : isTransportTariffs ? { label: 'زون‌بندی و تعرفه حمل' } : isTransport ? { label: 'وسایل نقلیه' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
   const canReviewUpgrades = access?.role === 'management' || access?.role === 'admin';
   const hasNavigation = signedIn && Boolean(demo || access);
   const identity = (
@@ -141,6 +143,7 @@ export default function App() {
         <h2>عملیات</h2>
         <a href="#transport-orders" aria-current={isTransportOrders ? 'page' : undefined}><ClipboardList size={18} /> سفارش‌های حمل</a>
         <a href="#transport" aria-current={isTransport ? 'page' : undefined}><Truck size={18} /> وسایل نقلیه</a>
+        <a href="#transport-tariffs" aria-current={isTransportTariffs ? 'page' : undefined}><Calculator size={18} /> زون‌بندی و تعرفه حمل</a>
       </nav>}
       <nav className="sidebar-menu members-menu" aria-label="معرفی">
         <h2>معرفی</h2>
@@ -195,12 +198,14 @@ export default function App() {
               ? <OrdersView token={token} onExpired={expire} />
               : isTransportOrders && token && access?.role === 'management'
                 ? <TransportOrdersView token={token} onExpired={expire} />
+              : isTransportTariffs && token && access?.role === 'management'
+                ? <TransportZoneTariffsView token={token} onExpired={expire} />
               : isAccountUpgrades && token && canReviewUpgrades
                 ? <AccountUpgradeRequestsView token={token} onExpired={expire} />
               : isAccountUpgrades ? <main className="workspace"><p role="alert">این بخش فقط برای مدیریت در دسترس است.</p></main>
               : isTransport && token && access?.role === 'management'
                 ? <TransportVehiclesView token={token} onExpired={expire} />
-                : (isTransport || isTransportOrders) ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
+                : (isTransport || isTransportOrders || isTransportTariffs) ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
                 : isDirectory
                 ? <SuppliersView token={token} onExpired={expire} />
                 : isMembers
