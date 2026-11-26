@@ -201,3 +201,20 @@ export function readTransportTariffs(token: string, signal: AbortSignal) {
 export function saveTransportTariffs(token: string, fields: TransportTariffs) {
   return write<TransportTariffs>('/organization/transport-tariffs', 'PATCH', token, fields);
 }
+
+export type AccountUpgradeRequest = {
+  _id: string; memberId: string; kind: 'transport' | 'producer'; status: 'pending' | 'approved' | 'rejected';
+  producerType?: string; requestedCategoryIds?: string[];
+  vehicle?: { type: string; model: string; year: number; capacityKg: number; capacityM3?: number; plate: string; license: string };
+  memberSnapshot?: { fullName?: string; phone?: string; organization?: string };
+  documents: Array<{ type: string; fileName: string; mimeType: string; dataUrl: string }>;
+  reviewNote?: string; createdAt: string;
+};
+export function readAccountUpgradeRequests(token: string, signal: AbortSignal) {
+  return request<{ items: AccountUpgradeRequest[] }>('/members/account-upgrades?status=pending', {
+    signal, headers: { Authorization: `Bearer ${token}` },
+  });
+}
+export function reviewAccountUpgradeRequest(token: string, id: string, status: 'approved' | 'rejected', note: string) {
+  return write<{ id: string; status: string }>(`/members/account-upgrades/${id}/review`, 'PATCH', token, { status, note });
+}
