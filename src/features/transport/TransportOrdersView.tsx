@@ -131,6 +131,7 @@ export default function TransportOrdersView({ token, onExpired }: { token: strin
               <span><Weight size={15} /> {number.format(order.weightKg)} کیلوگرم</span>
               <span><Package size={15} /> {number.format(order.volumeM3)} مترمکعب</span>
               <span><Clock3 size={15} /> {urgencyLabels[order.urgency] || '—'}</span>
+              <span><Clock3 size={15} /> مهلت: {order.deadline ? dateFormat.format(new Date(order.deadline)) : '—'}</span>
               <span>{categoryLabels[order.quote?.category] || '—'} · {number.format(order.quote?.distanceKm || 0)} کیلومتر</span>
             </div>
             <div className="transport-admin-route">{order.stops.map((stop, index) => <div key={index}>
