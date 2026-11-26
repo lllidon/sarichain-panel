@@ -4,6 +4,27 @@ import type { Supplier, SupplierPage } from './features/directory/suppliers';
 import type { Member, MemberGroup, MemberPage } from './features/members/members';
 import { type CatalogPage, type Section, type NamedRecord, pageSize } from './features/catalog/catalog';
 
+
+export type TransportVehicle = {
+  _id: string;
+  memberId: string;
+  type: string;
+  className?: string;
+  model: string;
+  year: number;
+  capacityKg: number;
+  plate: string;
+  license: string;
+  licenseClass?: string;
+  bodyType?: string;
+  insuranceExpiry?: string;
+  technicalInspectionExpiry?: string;
+  description?: string;
+  updatedAt?: string;
+  member?: { _id: string; fullName?: string; phone?: string; organization?: string; city?: string; serviceTypes?: string[]; isActive?: boolean };
+};
+export type TransportVehiclePage = { items: TransportVehicle[]; total: number; page: number; limit: number };
+
 export class ApiError extends Error {
   constructor(readonly status: number, message?: string) {
     super(message || '');
@@ -137,4 +158,11 @@ export async function readProvinceCities(code: string, signal: AbortSignal) {
     if (items.length >= response.total || !response.items.length) break;
   }
   return items;
+}
+
+export function readTransportVehicles(token: string, search: string, page: number, signal: AbortSignal) {
+  const query = new URLSearchParams({ search, page: String(page), limit: String(pageSize) });
+  return request<TransportVehiclePage>(`/organization/transport-vehicles?${query}`, {
+    signal, headers: { Authorization: `Bearer ${token}` },
+  });
 }
