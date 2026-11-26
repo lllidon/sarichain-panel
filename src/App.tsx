@@ -1,9 +1,10 @@
 import { readAccess, ApiError } from './api';
 import OrdersView from './features/organization/OrdersView';
+import TransportVehiclesView from './features/transport/TransportVehiclesView';
 import SettingsDrawer from './features/organization/SettingsDrawer';
 import { roleLabels, type Access } from './features/organization/organization';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { BookUser, ClipboardList, LogOut, Menu, Moon, Settings, Sun, Users, X } from 'lucide-react';
+import { BookUser, ClipboardList, LogOut, Menu, Moon, Settings, Sun, Truck, Users, X } from 'lucide-react';
 import Login from './features/auth/Login';
 import CatalogView from './features/catalog/CatalogView';
 import SuppliersView from './features/directory/SuppliersView';
@@ -14,9 +15,9 @@ import { type Section, sections } from './features/catalog/catalog';
 const tokenKey = 'sarichain-panel-token';
 const demoKey = 'sarichain-panel-demo';
 
-function getSection(): Section | MemberGroup | 'directory' | 'orders' {
+function getSection(): Section | MemberGroup | 'directory' | 'orders' | 'transport' {
   const section = location.hash.slice(1);
-  if (section === 'directory' || section === 'orders') return section;
+  if (section === 'directory' || section === 'orders' || section === 'transport') return section;
   if (Object.hasOwn(memberSections, section)) return section as MemberGroup;
   return Object.hasOwn(sections, section) ? section as Section : 'products';
 }
@@ -101,9 +102,10 @@ export default function App() {
   const clientOnly = access?.role === 'client';
   const visibleSection = clientOnly ? 'orders' : section;
   const isOrders = visibleSection === 'orders';
+  const isTransport = visibleSection === 'transport';
   const isMembers = Object.hasOwn(memberSections, visibleSection);
   const isDirectory = visibleSection === 'directory';
-  const current = isOrders ? { label: 'سفارش‌ها' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
+  const current = isOrders ? { label: 'سفارش‌ها' } : isTransport ? { label: 'مدیریت حمل‌ونقل' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
   const hasNavigation = signedIn && Boolean(demo || access);
   const identity = (
     <a href={clientOnly ? '#orders' : '#products'} className="identity"><img src="/img/sarichain-logo.svg" alt="پنل ساری‌چین" width="116" height="39" /></a>
@@ -128,6 +130,10 @@ export default function App() {
         <h2>اعضا</h2>
         <a href="#users" aria-current={visibleSection === 'users' ? 'page' : undefined}><Users size={18} /> کاربران پنل</a>
         <a href="#customers" aria-current={isMembers && visibleSection !== 'users' ? 'page' : undefined}><Users size={18} /> همکاران</a>
+      </nav>
+      <nav className="sidebar-menu members-menu" aria-label="حمل‌ونقل">
+        <h2>عملیات</h2>
+        <a href="#transport" aria-current={isTransport ? 'page' : undefined}><Truck size={18} /> مدیریت حمل‌ونقل</a>
       </nav>
       <nav className="sidebar-menu members-menu" aria-label="معرفی">
         <h2>معرفی</h2>
@@ -161,7 +167,7 @@ export default function App() {
               aria-controls="mobile-navigation" aria-expanded={menuOpen}
               onClick={() => { menu.current?.showModal(); setMenuOpen(true); }}><Menu size={21} /></button>}
             {!signedIn ? <a href="./" className="identity"><img src="/img/sarichain-logo.svg" alt="پنل ساری‌چین" width="116" height="39" /></a>
-            : <span className="header-context">{!isOrders && <>{isDirectory ? 'معرفی' : isMembers ? 'اعضا' : 'کاتالوگ'} <span aria-hidden="true">/</span></>}{current.label}</span>}
+            : <span className="header-context">{!isOrders && <>{isDirectory ? 'معرفی' : isTransport ? 'عملیات' : isMembers ? 'اعضا' : 'کاتالوگ'} <span aria-hidden="true">/</span></>}{current.label}</span>}
           </div>
           <div className="header-actions">
             {signedIn && <span className={demo ? 'mode demo' : 'mode'}>{demo ? 'داده آزمایشی' : access ? roleLabels[access.role] : 'داده بک‌اند'}</span>}
@@ -178,9 +184,11 @@ export default function App() {
         {signedIn
           ? token && !access
             ? <main className="workspace"><p role="status">{accessError ? 'دسترسی حساب دریافت نشد. دوباره وارد شوید.' : 'در حال دریافت دسترسی حساب…'}</p></main>
-            : isOrders && token
+             : isOrders && token
               ? <OrdersView token={token} onExpired={expire} />
-              : isDirectory
+              : isTransport && token && access?.role === 'management'
+                ? <TransportVehiclesView token={token} onExpired={expire} />
+                : isDirectory
                 ? <SuppliersView token={token} onExpired={expire} />
                 : isMembers
                   ? <MembersView key={visibleSection} group={visibleSection as MemberGroup} token={token} access={access} onExpired={expire} />
