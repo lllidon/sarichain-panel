@@ -97,7 +97,7 @@ export default function TransportOrdersView({ token, onExpired }: { token: strin
     {notice && <p className="catalog-notice" role="status">{notice}</p>}
 
     <section className="tariff-card">
-      <div className="transport-admin-section-heading"><div><h2>تعرفه ترکیبی کارسا</h2><p>مبلغ پایه دسته مسیر + مسافت تخمینی نقشه + وزن + حجم، سپس ضریب فوریت</p></div></div>
+      <div className="transport-admin-section-heading"><div><h2>تعرفه ترکیبی کارسا</h2><p>مبلغ پایه دسته مسیر + مسافت مستقیم تخمینی بین نقاط نقشه + وزن + حجم، سپس ضریب فوریت</p></div></div>
       <form onSubmit={saveRates}>
         <div className="tariff-grid">
           <label>پایه درون‌شهری<input type="number" min="0" step="0.0001" value={tariffs.intracityBaseKar} onChange={e => updateTariff('intracityBaseKar', e.target.value)} /></label>
