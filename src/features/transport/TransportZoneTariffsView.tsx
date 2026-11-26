@@ -64,11 +64,11 @@ export default function TransportZoneTariffsView({token,onExpired}:{token:string
         <div className="transport-admin-section-heading"><div><h2>جدول تعرفه زون و سرعت</h2><p>برای هر ترکیب زون و سرعت، هزینه پایه و ضرایب جداگانه تنظیم می‌شود.</p></div></div>
         {zoneLabels.map(zone=><div className="transport-zone-rate-group" key={zone.id}>
           <header><b>{zone.label}</b><span>{zone.range}</span></header>
-          <div className="transport-zone-rate-table-wrap"><table className="transport-zone-rate-table"><thead><tr><th>سرعت تحویل</th><th>هزینه پایه</th><th>هر کیلومتر</th><th>هر کیلوگرم قابل محاسبه</th><th>هر توقف اضافه</th><th>ضریب سرعت</th></tr></thead><tbody>
+          <div className="transport-zone-rate-table-wrap"><table className="transport-zone-rate-table"><thead><tr><th>سرعت تحویل</th><th>هزینه پایه (کارسا)</th><th>هر کیلومتر (کارسا)</th><th>هر کیلوگرم (کارسا)</th><th>هر توقف اضافه (کارسا)</th><th>ضریب سرعت</th></tr></thead><tbody>
           {speeds.map(speed=>{const index=data.rates.findIndex(rate=>rate.zoneId===zone.id&&rate.speed===speed.id);const rate=data.rates[index];return <tr key={speed.id}><th>{speed.label}<small>{speed.target}</small></th>{(['baseKar','perKmKar','perBillableKgKar','stopKar','multiplier'] as const).map(key=><td key={key}><input aria-label={zone.label+' '+speed.label+' '+key} type="number" min="0" step="0.0001" value={rate?.[key]??0} onChange={e=>changeRate(index,key,e.target.value)}/></td>)}</tr>})}
           </tbody></table></div>
         </div>)}
-        <div className="tariff-actions"><small>واحد تمام نرخ‌ها کارسا است. تغییر تعرفه فقط روی سفارش‌های جدید اثر می‌گذارد.</small><button className="primary-button" type="submit" disabled={busy}><Save size={16}/>{busy?'در حال ذخیره…':'ذخیره همه تعرفه‌ها'}</button></div>
+        <div className="tariff-actions"><small>واحد پول تمام مبالغ «کارسا» است؛ هیچ تبدیل یا محاسبه‌ای با تومان یا ریال انجام نمی‌شود. تغییر تعرفه فقط روی سفارش‌های جدید اثر می‌گذارد.</small><button className="primary-button" type="submit" disabled={busy}><Save size={16}/>{busy?'در حال ذخیره…':'ذخیره همه تعرفه‌ها'}</button></div>
       </section>
     </form>}
   </main>;
