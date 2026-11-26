@@ -202,6 +202,16 @@ export function saveTransportTariffs(token: string, fields: TransportTariffs) {
   return write<TransportTariffs>('/organization/transport-tariffs', 'PATCH', token, fields);
 }
 
+export type TransportSpeed = 'normal' | 'special' | 'express' | 'urgent';
+export type TransportZoneRate = { zoneId: string; speed: TransportSpeed; baseKar: number; perKmKar: number; perBillableKgKar: number; stopKar: number; multiplier: number };
+export type TransportZoneTariffs = { rates: TransportZoneRate[]; densityKgPerM3: number; minimumKar: number; zones: Array<{id:string;label:string;minKm:number;maxKm:number|null}>; speeds: Array<{id:TransportSpeed;label:string;target:string}> };
+export function readTransportZoneTariffs(token: string, signal: AbortSignal) {
+  return request<TransportZoneTariffs>('/organization/transport-zone-tariffs', { signal, headers: { Authorization: `Bearer ${token}` } });
+}
+export function saveTransportZoneTariffs(token: string, fields: Pick<TransportZoneTariffs, 'rates'|'densityKgPerM3'|'minimumKar'>) {
+  return write<TransportZoneTariffs>('/organization/transport-zone-tariffs', 'PATCH', token, fields);
+}
+
 export type AccountUpgradeRequest = {
   _id: string; memberId: string; kind: 'transport' | 'producer'; status: 'pending' | 'approved' | 'rejected';
   producerType?: string; requestedCategoryIds?: string[]; requestedCategoryLabels?: string[];
