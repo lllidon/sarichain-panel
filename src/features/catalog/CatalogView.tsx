@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { ArrowDownRight, ChevronLeft, ChevronRight, Pencil, Plus, Search, Trash2, X, Zap }, Download, Upload } from 'lucide-react';
+import { ArrowDownRight, ChevronLeft, ChevronRight, Pencil, Plus, Search, Trash2, X, Zap, Download, Upload } from 'lucide-react';
 import { ApiError, readCatalog, readCatalogChoices, saveCatalog } from '../../api';
 import { csvValue, downloadCsv, readCsv } from '../../lib/csv';
 import { type CatalogItem, type CatalogPage, type Section, number, sections } from './catalog';
