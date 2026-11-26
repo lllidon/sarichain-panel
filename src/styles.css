@@ -333,3 +333,23 @@ td svg { vertical-align: middle; color: var(--muted); }
   .transport-review-actions button { flex: 1; }
   .tariff-actions .primary-button { width: 100%; }
 }
+
+
+.account-upgrade-admin-list { display:grid; gap:16px; }
+.account-upgrade-admin-card { padding:18px; }
+.account-upgrade-admin-card > header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.account-upgrade-admin-card h2 { margin:0 0 8px; font-size:1.05rem; }
+.account-upgrade-admin-card header p { margin:5px 0; color:var(--muted); }
+.account-upgrade-admin-details { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; margin:16px 0; }
+.account-upgrade-admin-details div { padding:10px; border-radius:8px; background:var(--surface-subtle); }
+.account-upgrade-admin-details dt { color:var(--muted); font-size:.78rem; }
+.account-upgrade-admin-details dd { margin:5px 0 0; font-weight:650; }
+.account-upgrade-admin-card h3 { margin:18px 0 10px; font-size:.9rem; }
+.account-upgrade-admin-docs { display:flex; flex-wrap:wrap; gap:12px; }
+.account-upgrade-admin-docs a { display:flex; align-items:center; gap:9px; min-width:180px; padding:9px; border:1px solid var(--border); border-radius:9px; color:inherit; text-decoration:none; }
+.account-upgrade-admin-docs img { width:72px; height:64px; object-fit:cover; border-radius:6px; }
+.account-upgrade-admin-docs span,.account-upgrade-admin-docs small { display:block; }
+.account-upgrade-admin-docs small { margin-top:4px; max-width:150px; overflow-wrap:anywhere; color:var(--muted); font-size:.72rem; }
+.account-upgrade-admin-note { display:grid; gap:6px; margin-top:16px; font-size:.82rem; }
+.account-upgrade-admin-note textarea { width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:inherit; font:inherit; }
+.account-upgrade-admin-card footer { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
