@@ -5,7 +5,7 @@ import { number } from '../catalog/catalog';
 
 const precise = new Intl.NumberFormat('fa-IR',{maximumFractionDigits:8});
 const dates = new Intl.DateTimeFormat('fa-IR',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Tehran'});
-const labels:Record<string,string> = {credit:'افزایش',debit:'کاهش',onboarding:'هدیه تکمیل مدارک',purchase:'خرید',conversion:'تبدیل به تومان',decay:'کاهش ماهانه',admin_adjustment:'اصلاح مدیریتی',admin_debit:'کاهش مدیریتی'};
+const labels:Record<string,string> = {migration:'انتقال موجودی قبلی',credit:'افزایش',debit:'کاهش',onboarding:'هدیه تکمیل مدارک',purchase:'خرید',conversion:'تبدیل به تومان',decay:'کاهش ماهانه',admin_adjustment:'اصلاح مدیریتی',admin_debit:'کاهش مدیریتی'};
 export default function KarshaManagementView({token,onExpired}:{token:string;onExpired:()=>void}) {
   const [policy,setPolicy]=useState<KarshaPolicy>();
   const [ledger,setLedger]=useState<KarshaLedgerPage>();
