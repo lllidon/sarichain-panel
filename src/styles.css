@@ -419,3 +419,12 @@ td svg { vertical-align: middle; color: var(--muted); }
 .transport-zone-rate-table input { width:110px; min-width:75px; padding:8px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--text); }
 .transport-zone-rate-table tbody tr:last-child th,.transport-zone-rate-table tbody tr:last-child td { border-bottom:0; }
 @media(max-width:760px) { .transport-zone-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+.transport-quote-preview { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:18px; }
+.transport-quote-preview > div { display:flex; flex-direction:column; gap:7px; padding:14px; border:1px solid var(--line); border-radius:12px; background:var(--surface); }
+.transport-quote-preview small { color:var(--muted); font-size:12px; }
+.transport-quote-preview strong { color:var(--text); font-size:17px; font-weight:700; }
+.transport-quote-preview .transport-quote-total { grid-column:1/-1; background:var(--surface-muted); }
+.transport-quote-preview .transport-quote-total strong { font-size:24px; }
+.tariff-hint { margin-top:14px; color:var(--muted); font-size:12px; line-height:1.9; }
+@media(max-width:760px) { .transport-quote-preview { grid-template-columns:repeat(2,minmax(0,1fr)); } }
