@@ -53,6 +53,16 @@ flowchart TD
 - **Operations**: inventory, transport vehicles, transport orders and zone tariffs; management-only areas.
 - **Pilot**: isolated preview/data presentation.
 
+## Producer category-change request review
+
+- `src/api.ts` models `AccountUpgradeRequest.kind` with the additional `producer_categories` variant and carries current/requested category IDs and labels. The existing request-list and review calls are reused:
+  - `GET /members/account-upgrades/requests`
+  - `PATCH /members/account-upgrades/:id/review`
+- `src/features/members/AccountUpgradeRequestsView.tsx` labels this request as a producer category change and displays current categories, requested categories, and the calculated additions/removals. Management/admin users can approve or reject it and include a review note.
+- Approval is applied by the backend, not by the panel: the backend replaces the member's `allowedProductCategoryIds` with the requested set. The panel only submits the decision; backend authorization and validation remain authoritative.
+- Related producer-side UI and API proxy are in `lllidon/sarichain-web`; request validation and permission mutation are in `lllidon/sarichain-back`. See each repository's `docs/KNOWLEDGE_GRAPH.md` for the full flow.
+- Relevant change: panel PR #5 merged to `main`. Rebuild/redeploy the panel for the new request kind and comparison details to appear.
+
 ## Authorization model visible in the UI
 - `management`: broad access; settings, inventory and transport operations.
 - `admin`: member/branch operational scope and account-upgrade review; catalog writes are exposed only when role is management in the catalog view.
