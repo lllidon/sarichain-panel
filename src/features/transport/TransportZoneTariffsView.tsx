@@ -49,6 +49,14 @@ export default function TransportZoneTariffsView({token,onExpired}:{token:string
   function update<K extends NumericTariffKey>(key:K,value:number){
     setData(current=>current?({...current,[key]:value}):current);
   }
+  function updateCoordinate(key:'hubLatitude'|'hubLongitude',value:string){
+    setData(current=>{
+      if(!current)return current;
+      if(!value.trim()) { const next={...current}; delete next[key]; return next; }
+      const parsed=Number(value);
+      return Number.isFinite(parsed)?({...current,[key]:parsed}):current;
+    });
+  }
   function restoreStandard(){
     setData(current=>current?({...current,...standardDefaults}):current);
     setNotice('مقادیر استاندارد در فرم قرار گرفتند؛ برای اعمال نهایی، ذخیره فرمول را بزنید.');
@@ -107,8 +115,8 @@ export default function TransportZoneTariffsView({token,onExpired}:{token:string
           <div className="transport-zone-rate-group"><header><b>مرکز تجمیع ساری‌چین</b><span>در صورت فعال‌سازی، موتور حمل مسیر مستقیم و تجمیعی را مقایسه می‌کند</span></header>
             <label className="transport-hub-toggle"><input type="checkbox" checked={data.hubEnabled} onChange={e=>setData(current=>current?({...current,hubEnabled:e.target.checked}):current)}/><span>استفاده از مرکز تجمیع در محاسبه گزینه‌های حمل مجاز باشد</span></label>
             <div className="tariff-grid">
-              <label><span><MapPin size={14}/> عرض جغرافیایی مرکز</span><input type="number" min="-90" max="90" step="0.000001" value={data.hubLatitude ?? ''} onChange={e=>update('hubLatitude',Number(e.target.value))}/></label>
-              <label><span><MapPin size={14}/> طول جغرافیایی مرکز</span><input type="number" min="-180" max="180" step="0.000001" value={data.hubLongitude ?? ''} onChange={e=>update('hubLongitude',Number(e.target.value))}/></label>
+              <label><span><MapPin size={14}/> عرض جغرافیایی مرکز</span><input type="number" min="-90" max="90" step="0.000001" value={data.hubLatitude ?? ''} onChange={e=>updateCoordinate('hubLatitude',e.target.value)}/></label>
+              <label><span><MapPin size={14}/> طول جغرافیایی مرکز</span><input type="number" min="-180" max="180" step="0.000001" value={data.hubLongitude ?? ''} onChange={e=>updateCoordinate('hubLongitude',e.target.value)}/></label>
               <label><span><Package size={14}/> هزینه پردازش هر سفارش تجمیعی</span><input type="number" min="0" step="0.0001" value={data.hubHandlingKar} onChange={e=>update('hubHandlingKar',Number(e.target.value))}/></label>
               <label><span><Weight size={14}/> هزینه تجمیع به‌ازای هر کیلوگرم</span><input type="number" min="0" step="0.0001" value={data.hubPerKgKar} onChange={e=>update('hubPerKgKar',Number(e.target.value))}/></label>
             </div>
