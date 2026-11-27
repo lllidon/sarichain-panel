@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ClipboardList, Eye, RefreshCw, Search, Save, X, Package, Truck, Wallet, Settings2, Plus, Trash2, Printer, GripVertical, Check, Ban } from 'lucide-react';
 import { ApiError, readAllStoreOrders, readStoreOrder, updateStoreOrder, readStoreOrderBoardConfig, saveStoreOrderBoardConfig, type StoreOrder, type StoreOrderBoardConfig, type StoreOrderBoardColumn, type StoreOrderBoardAction } from '../../api';
 
@@ -49,6 +49,7 @@ export default function StoreOrdersView({ token, onExpired }: { token: string; o
   const [configSaving, setConfigSaving] = useState(false);
   const [draggingId, setDraggingId] = useState<string>();
   const [movingId, setMovingId] = useState<string>();
+  const statusWrites = useRef(new Map<string, Promise<void>>());
 
   const load = useCallback(async (signal?: AbortSignal) => {
     setLoading(true); setError('');
@@ -105,7 +106,13 @@ export default function StoreOrdersView({ token, onExpired }: { token: string; o
     setError('');
 
     try {
-      await updateStoreOrder(token, order._id, { status });
+      const previousWrite = statusWrites.current.get(order._id) ?? Promise.resolve();
+      const currentWrite = previousWrite.catch(() => undefined)
+        .then(() => updateStoreOrder(token, order._id, { status }))
+        .then(() => undefined);
+      statusWrites.current.set(order._id, currentWrite);
+      await currentWrite;
+      if (statusWrites.current.get(order._id) === currentWrite) statusWrites.current.delete(order._id);
     } catch (failure) {
       if (failure instanceof ApiError && failure.status === 401) onExpired();
       else setError(failure instanceof Error
@@ -195,7 +202,7 @@ export default function StoreOrdersView({ token, onExpired }: { token: string; o
           <header><span className="store-kanban-color" /><strong>{column.title}</strong><span className="store-kanban-count">{money.format(columnOrders.length)}</span></header>
           <div className="store-kanban-cards">
             {columnOrders.map(order => <article key={order._id} className={`store-kanban-card ${draggingId === order._id ? 'is-dragging' : ''}`}
-              draggable={movingId !== order._id} onDragStart={event => { setDraggingId(order._id); event.dataTransfer.setData('text/order-id', order._id); event.dataTransfer.effectAllowed = 'move'; }}
+              draggable onDragStart={event => { setDraggingId(order._id); event.dataTransfer.setData('text/order-id', order._id); event.dataTransfer.effectAllowed = 'move'; }}
               onDragEnd={() => setDraggingId(undefined)}>
               <div className="store-kanban-card-top"><bdi>{order.orderNumber}</bdi><GripVertical size={15} /></div>
               <strong className="store-kanban-customer">{order.customer?.fullName || order.customer?.organization || 'مشتری نامشخص'}</strong>
