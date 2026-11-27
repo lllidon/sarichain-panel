@@ -24,7 +24,7 @@ function getSection(): Section | MemberGroup | 'directory' | 'orders' | 'transpo
   const section = location.hash.slice(1);
   if (section === 'directory' || section === 'orders' || section === 'transport' || section === 'transport-orders' || section === 'transport-tariffs' || section === 'account-upgrades' || section === 'inventory' || section === 'store-kanban') return section;
   if (Object.hasOwn(memberSections, section)) return section as MemberGroup;
-  return Object.hasOwn(sections, section) ? section as Section : 'products';
+  return Object.hasOwn(sections, section) ? section as Section : 'orders';
 }
 
 export default function App() {
@@ -125,6 +125,7 @@ export default function App() {
     <>
       {token && <nav className="sidebar-menu" aria-label="سفارش‌ها">
         <a href="#orders" aria-current={isOrders ? 'page' : undefined}><ClipboardList size={18} /> سفارش‌ها</a>
+        {token && access?.role === 'management' && <a className="sidebar-subitem" href="#store-kanban" aria-current={isStoreKanban ? 'page' : undefined}><ClipboardList size={16} /> مدیریت سفارشات (کانبان)</a>}
       </nav>}
       {!clientOnly && <>
       <nav className="sidebar-menu" aria-label="پیش‌نمایش">
@@ -145,7 +146,6 @@ export default function App() {
       </nav>
       {token && access?.role === 'management' && <nav className="sidebar-menu members-menu" aria-label="عملیات">
         <h2>عملیات</h2>
-        <a href="#store-kanban" aria-current={isStoreKanban ? 'page' : undefined}><ClipboardList size={18} /> مدیریت سفارشات</a>
         <a href="#inventory" aria-current={isInventory ? 'page' : undefined}><PackageSearch size={18} /> مدیریت موجودی</a>
         <a href="#transport-orders" aria-current={isTransportOrders ? 'page' : undefined}><ClipboardList size={18} /> سفارش‌های حمل</a>
         <a href="#transport" aria-current={isTransport ? 'page' : undefined}><Truck size={18} /> وسایل نقلیه</a>
@@ -204,7 +204,7 @@ export default function App() {
               ? <StoreOrdersView token={token} onExpired={expire} />
               : isStoreKanban ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
               : isOrders && token
-              ? <OrdersView token={token} onExpired={expire} />
+              ? <OrdersView token={token} onExpired={expire} management={access?.role === 'management'} />
               : isInventory && token && access?.role === 'management'
                 ? <InventoryView token={token} onExpired={expire} />
               : isInventory ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
