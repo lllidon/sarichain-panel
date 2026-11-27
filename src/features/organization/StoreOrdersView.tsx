@@ -189,7 +189,7 @@ export default function StoreOrdersView({ token, onExpired }: { token: string; o
               <strong className="store-kanban-customer">{order.customer?.fullName || order.customer?.organization || 'مشتری نامشخص'}</strong>
               <div className="store-kanban-card-meta"><span><Wallet size={13} />{money.format(order.total ?? 0)} کارسا</span><span><Package size={13} />{money.format(order.items?.length ?? 0)} قلم</span></div>
               <div className="store-kanban-card-meta"><span><Truck size={13} />{deliveryDate(order)}</span></div>
-              <div className="store-kanban-card-bottom"><span className="store-kanban-tag">{order.delivery?.method || 'روش ارسال ثبت نشده'}</span><button type="button" className="icon-button" aria-label="جزئیات سفارش" onClick={() => void openOrder(order._id)}><Eye size={16} /></button></div>
+              <div className="store-kanban-card-bottom"><span className="store-kanban-tag">{order.tags?.[0] || order.delivery?.method || statusLabels[order.status] || 'بدون برچسب'}</span><button type="button" className="icon-button" aria-label="جزئیات سفارش" onClick={() => void openOrder(order._id)}><Eye size={16} /></button></div>
               {movingId === order._id && <small className="store-kanban-moving">در حال انتقال…</small>}
             </article>)}
             {!columnOrders.length && <div className="store-kanban-empty">سفارشی در این ستون نیست</div>}
