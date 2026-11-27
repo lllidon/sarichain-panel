@@ -208,7 +208,7 @@ export type TransportZoneTariffs = {
   densityKgPerM3:number; minimumKar:number;
   refrigeratedBaseKar:number; refrigeratedPerKgKar:number; fragileMultiplier:number;
   hubEnabled:boolean; hubLatitude?:number|null; hubLongitude?:number|null; hubHandlingKar:number; hubPerKgKar:number;
-  hubSupportsRefrigeration:boolean; hubMaxWeightKg:number; hubMaxVolumeM3:number;
+  hubSupportsRefrigeration:boolean; hubSupportsFragile:boolean; hubMaxWeightKg:number; hubMaxVolumeM3:number;
   normalMultiplier:number; specialMultiplier:number; expressMultiplier:number; urgentMultiplier:number;
   zones:Array<{id:string;label:string;minKm:number;maxKm:number|null}>;
   speeds:Array<{id:TransportSpeed;label:string;target:string}>;
