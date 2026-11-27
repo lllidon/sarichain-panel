@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { ArrowDown, ArrowUp, ImagePlus, LoaderCircle, Pencil, Plus, Save, Trash2, Upload, X } from 'lucide-react';
 import { ApiError, deleteHomeSlide, readHomeSlides, saveHomeSlide, uploadCatalogImage, type HomeSlide, type HomeSlideInput } from '../../api';
 
+function panelImage(url: string) { return url.startsWith('/web/') ? '/api' + url : url; }
+
 const blank: HomeSlideInput = {
   eyebrow: '', title: '', description: '', imageUrl: '', imageAlt: '', cta: '', href: '/categories', order: 0, isActive: true,
 };
@@ -133,7 +135,7 @@ export default function HomeSlidesView({ token, onExpired }: { token: string; on
         <label>لینک مقصد دکمه<input required maxLength={2048} value={form.href} onChange={e=>setForm(v=>({...v,href:e.target.value}))} placeholder="/categories"/></label>
         <label className="wide">متن جایگزین تصویر<input required maxLength={180} value={form.imageAlt} onChange={e=>setForm(v=>({...v,imageAlt:e.target.value}))} placeholder="توضیح تصویر برای دسترس‌پذیری"/></label>
         <div className="home-slide-upload wide">
-          <div className="home-slide-preview">{form.imageUrl ? <img src={form.imageUrl} alt="پیش‌نمایش اسلاید"/> : <span><ImagePlus size={25}/>تصویر اسلاید</span>}</div>
+          <div className="home-slide-preview">{form.imageUrl ? <img src={panelImage(form.imageUrl)} alt="پیش‌نمایش اسلاید"/> : <span><ImagePlus size={25}/>تصویر اسلاید</span>}</div>
           <div><strong>تصویر بنر</strong><small>تصویر افقی با کیفیت مناسب انتخاب کنید. ویدئو پشتیبانی نمی‌شود.</small>
             <label className="home-slide-upload-button"><Upload size={16}/>{uploading ? 'در حال بارگذاری…' : 'انتخاب و بارگذاری تصویر'}
               <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" disabled={uploading} onChange={e=>{void upload(e.target.files?.[0]);e.currentTarget.value='';}}/>
@@ -151,7 +153,7 @@ export default function HomeSlidesView({ token, onExpired }: { token: string; on
       {loading ? <div className="table-state"><LoaderCircle className="spin" size={22}/>در حال دریافت اسلایدها…</div>
       : !slides.length ? <div className="table-state"><ImagePlus size={26}/>هنوز اسلایدی ثبت نشده است. اولین اسلاید را اضافه کنید.</div>
       : <div className="home-slide-items">{slides.map((item,index)=><article className="home-slide-item" key={item._id}>
-        <img src={item.imageUrl} alt={item.imageAlt}/>
+        <img src={panelImage(item.imageUrl)} alt={item.imageAlt} onError={event=>{event.currentTarget.style.visibility="hidden";}}/>
         <div className="home-slide-item-copy"><div className="home-slide-item-top"><span className={item.isActive?'status active':'status'}>{item.isActive?'فعال':'غیرفعال'}</span><small>اسلاید {index+1} · ترتیب {item.order}</small></div>
           <strong>{item.title}</strong><p>{item.description}</p><small>{item.href}</small></div>
         <div className="home-slide-item-actions">
