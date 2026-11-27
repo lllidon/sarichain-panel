@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ClipboardList, Eye, RefreshCw, Search, Save, X, Package, Truck, Wallet, Settings2, Plus, Trash2, Printer, GripVertical, Check, Ban, ChevronDown } from 'lucide-react';
+import { ClipboardList, Eye, RefreshCw, Search, Save, X, Package, Truck, Wallet, Settings2, Plus, Trash2, Printer, GripVertical, Check, Ban } from 'lucide-react';
 import { ApiError, readAllStoreOrders, readStoreOrder, updateStoreOrder, readStoreOrderBoardConfig, saveStoreOrderBoardConfig, type StoreOrder, type StoreOrderBoardConfig, type StoreOrderBoardColumn, type StoreOrderBoardAction } from '../../api';
 
 const money = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 2 });
