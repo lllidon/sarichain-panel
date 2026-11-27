@@ -296,3 +296,20 @@ export async function readAllStoreOrders(token: string, search: string, signal: 
   } while (all.length < total && page <= 1000);
   return all;
 }
+
+export type KarshaPolicy = { annualDecayRate:number; monthlyDecayRate:number; rateTomanPerKarsha:number|null; currency:string };
+export type KarshaLedgerEntry = { _id:string; memberId:string; type:string; amount:number; balanceAfter:number; reason:string; actor?:string; createdAt:string; member?:{fullName?:string;phone?:string;organization?:string} };
+export type KarshaLedgerPage = { items:KarshaLedgerEntry[]; total:number; page:number; limit:number };
+export function readKarshaPolicy(token:string,signal:AbortSignal) {
+  return request<KarshaPolicy>('/organization/karsha-policy',{signal,headers:{Authorization:`Bearer ${token}`}});
+}
+export function saveKarshaPolicy(token:string,rateTomanPerKarsha:number|null) {
+  return write<KarshaPolicy>('/organization/karsha-policy','POST',token,{rateTomanPerKarsha});
+}
+export function readKarshaLedger(token:string,memberId:string,page:number,signal:AbortSignal) {
+  const query=new URLSearchParams({page:String(page),...(memberId.trim()?{memberId:memberId.trim()}:{})});
+  return request<KarshaLedgerPage>(`/organization/karsha-ledger?${query}`,{signal,headers:{Authorization:`Bearer ${token}`}});
+}
+export function adjustKarsha(token:string,fields:{memberId:string;direction:'credit'|'debit';amount:number;reason:string;idempotencyKey:string}) {
+  return write<{balance:number;duplicate:boolean}>('/organization/karsha-adjustments','POST',token,fields);
+}
