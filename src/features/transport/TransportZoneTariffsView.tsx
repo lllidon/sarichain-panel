@@ -12,7 +12,7 @@ const speedFields: Array<{id:TransportSpeed;label:string;target:string;field:'no
 const standardDefaults: Omit<TransportZoneTariffs,'zones'|'speeds'> = {
   baseKar:2,distanceWeight:0.02,billableWeightWeight:0.001,stopWeight:0.1,
   densityKgPerM3:250,minimumKar:2,refrigeratedBaseKar:0,refrigeratedPerKgKar:0,fragileMultiplier:1.15,
-  hubEnabled:false,hubHandlingKar:0,hubPerKgKar:0,hubSupportsRefrigeration:false,hubMaxWeightKg:0,hubMaxVolumeM3:0,
+  hubEnabled:false,hubLatitude:null,hubLongitude:null,hubHandlingKar:0,hubPerKgKar:0,hubSupportsRefrigeration:false,hubMaxWeightKg:0,hubMaxVolumeM3:0,
   normalMultiplier:1,specialMultiplier:1.35,expressMultiplier:1.8,urgentMultiplier:2.5,
 };
 const calculatorDefaults = {distance:35,weight:80,volume:0.8,stops:2,speed:'normal' as TransportSpeed};
@@ -52,7 +52,7 @@ export default function TransportZoneTariffsView({token,onExpired}:{token:string
   function updateCoordinate(key:'hubLatitude'|'hubLongitude',value:string){
     setData(current=>{
       if(!current)return current;
-      if(!value.trim()) { const next={...current}; delete next[key]; return next; }
+      if(!value.trim()) return {...current,[key]:null};
       const parsed=Number(value);
       return Number.isFinite(parsed)?({...current,[key]:parsed}):current;
     });
