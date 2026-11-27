@@ -13,7 +13,8 @@ const headings = {
 };
 
 function price(item: CatalogItem) {
-  const { min, max } = item.price ?? { min: 0, max: 0 };
+  if (!item.price) return 'قیمت توسط فروشنده اعلام می‌شود';
+  const { min, max } = item.price;
   const format = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 6 });
   return (min === max ? format.format(min) : `${format.format(min)} تا ${format.format(max)}`) + ' کارسا';
 }
