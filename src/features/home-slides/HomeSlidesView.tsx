@@ -138,7 +138,7 @@ export default function HomeSlidesView({ token, onExpired }: { token: string; on
             <label className="home-slide-upload-button"><Upload size={16}/>{uploading ? 'در حال بارگذاری…' : 'انتخاب و بارگذاری تصویر'}
               <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" disabled={uploading} onChange={e=>{void upload(e.target.files?.[0]);e.currentTarget.value='';}}/>
             </label>
-            <input type="url" value={form.imageUrl} onChange={e=>setForm(v=>({...v,imageUrl:e.target.value}))} placeholder="یا نشانی تصویر را وارد کنید" aria-label="نشانی تصویر"/>
+            <input type="text" value={form.imageUrl} onChange={e=>setForm(v=>({...v,imageUrl:e.target.value}))} placeholder="یا نشانی تصویر را وارد کنید" aria-label="نشانی تصویر"/>
           </div>
         </div>
         <label>ترتیب نمایش<input type="number" min={0} max={10000} value={form.order} onChange={e=>setForm(v=>({...v,order:Number(e.target.value)}))}/></label>
