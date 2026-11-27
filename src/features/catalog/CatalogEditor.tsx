@@ -240,11 +240,11 @@ export default function CatalogEditor({ section, mode, item, token, onClose, onS
                     <details className="editor-wide editor-details">
                       <summary>مشخصات فیزیکی و گزینه‌ها</summary>
                       <div className="editor-fields">
-                        <label>چگالی استاندارد (kg/m³)<input type="number" step="any" name="standardDensityKgM3" defaultValue={physical?.standardDensityKgM3} /></label>
-                        <label>وزن حمل (گرم)<input type="number" step="any" name="shippingWeightG" defaultValue={physical?.shippingWeightG} /></label>
-                        <label>طول (میلی‌متر)<input type="number" step="any" name="lengthMm" defaultValue={physical?.shippingDimensions?.lengthMm} /></label>
-                        <label>عرض (میلی‌متر)<input type="number" step="any" name="widthMm" defaultValue={physical?.shippingDimensions?.widthMm} /></label>
-                        <label>ارتفاع (میلی‌متر)<input type="number" step="any" name="heightMm" defaultValue={physical?.shippingDimensions?.heightMm} /></label>
+                        <label>چگالی استاندارد (kg/m³)<input type="number" step="any" name="standardDensityKgM3" min="0.000001" max="10000" defaultValue={physical?.standardDensityKgM3} /></label>
+                        <label>وزن حمل (گرم)<input type="number" step="any" name="shippingWeightG" min="0.000001" max="100000000" defaultValue={physical?.shippingWeightG} /></label>
+                        <label>طول (میلی‌متر)<input type="number" step="any" name="lengthMm" min="0.000001" max="100000" defaultValue={physical?.shippingDimensions?.lengthMm} /></label>
+                        <label>عرض (میلی‌متر)<input type="number" step="any" name="widthMm" min="0.000001" max="100000" defaultValue={physical?.shippingDimensions?.widthMm} /></label>
+                        <label>ارتفاع (میلی‌متر)<input type="number" step="any" name="heightMm" min="0.000001" max="100000" defaultValue={physical?.shippingDimensions?.heightMm} /></label>
                         <label className="editor-checkbox"><input type="checkbox" name="requiresRefrigeration" defaultChecked={physical?.requiresRefrigeration ?? false} /> نیازمند حمل یخچالی / زنجیره سرد</label>
                         <label>حداقل دمای مجاز (°C)<input type="number" step="0.1" min="-80" max="80" name="temperatureMinC" defaultValue={physical?.temperatureMinC} /></label>
                         <label>حداکثر دمای مجاز (°C)<input type="number" step="0.1" min="-80" max="80" name="temperatureMaxC" defaultValue={physical?.temperatureMaxC} /></label>
