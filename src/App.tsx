@@ -186,7 +186,7 @@ export default function App() {
               aria-controls="mobile-navigation" aria-expanded={menuOpen}
               onClick={() => { menu.current?.showModal(); setMenuOpen(true); }}><Menu size={21} /></button>}
             {!signedIn ? <a href="./" className="identity"><img src="/img/sarichain-logo.svg" alt="پنل ساری‌چین" width="116" height="39" /></a>
-            : <span className="header-context">{!isOrders && <>{isStoreKanban || isInventory || isTransport || isTransportOrders || isTransportTariffs ? 'عملیات' : isDirectory ? 'معرفی' : isMembers ? 'اعضا' : 'کاتالوگ'} <span aria-hidden="true">/</span></>}{current.label}</span>}
+            : <span className="header-context">{!isOrders && <>{isStoreKanban || isKarsha || isInventory || isTransport || isTransportOrders || isTransportTariffs ? 'عملیات' : isDirectory ? 'معرفی' : isMembers ? 'اعضا' : 'کاتالوگ'} <span aria-hidden="true">/</span></>}{current.label}</span>}
           </div>
           <div className="header-actions">
             {signedIn && <span className={demo ? 'mode demo' : 'mode'}>{demo ? 'داده آزمایشی' : access ? roleLabels[access.role] : 'داده بک‌اند'}</span>}
