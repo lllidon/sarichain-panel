@@ -525,3 +525,7 @@ td svg { vertical-align: middle; color: var(--muted); }
  .inventory-seller-heading { align-items:flex-start; }
  .inventory-seller-heading small { max-width:230px; line-height:1.7; }
 }
+
+.transport-hub-toggle { display:flex; align-items:center; gap:10px; margin:12px 14px 0; color:var(--text); font-size:12px; cursor:pointer; }
+.transport-hub-toggle input { width:17px; height:17px; accent-color:var(--green); }
+.transport-hub-note { margin:10px 14px 0; color:var(--muted); font-size:11px; line-height:1.8; }
