@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
-import { ClipboardList, RefreshCw, Search, SlidersHorizontal, ChevronDown, ChevronUp, Package, Truck, Wallet, UserRound, CalendarDays, Phone, Hash, X, Filter, RotateCcw } from 'lucide-react';
+import { ClipboardList, RefreshCw, SlidersHorizontal, ChevronDown, ChevronUp, Package, Truck, Wallet, UserRound, CalendarDays, Hash, X, Filter, RotateCcw } from 'lucide-react';
 import { ApiError, readOrders, readAllStoreOrders, readStoreOrder, type StoreOrder } from '../../api';
 import { number } from '../catalog/catalog';
 import type { OrderPage } from './organization';
@@ -187,10 +187,10 @@ function ManagementOrdersView({ token, onExpired }: { token: string; onExpired: 
       {loading && !orders.length ? <div className="table-state" role="status">در حال دریافت سفارش‌ها…</div>
         : !filtered.length ? <div className="table-state">سفارشی با این فیلترها پیدا نشد.</div>
         : <div className="table-scroll orders-table-scroll">
-          <table className="orders-data-table"><thead><tr><th>ردیف</th><th>شماره سفارش</th><th>اطلاعات مشتری</th><th>شماره تماس</th><th>وضعیت سفارش</th><th>وضعیت پرداخت</th><th>تاریخ ثبت</th><th>تاریخ تحویل</th><th>تعداد اقلام</th><th>وزن خریداری‌شده</th><th>قیمت کل</th><th>جزئیات</th></tr></thead>
+          <table className="orders-data-table"><thead><tr><th>ردیف</th><th>شماره سفارش</th><th>اطلاعات مشتری</th><th>شماره تماس</th><th>وضعیت سفارش</th><th>وضعیت پرداخت</th><th>تاریخ ثبت</th><th>تاریخ تحویل</th><th>تعداد اقلام</th><th>مجموع تعداد</th><th>قیمت کل</th><th>جزئیات</th></tr></thead>
             <tbody>{visible.map((order,index) => {
               const detail = detailCache[order._id];
-              const weight = order.items?.reduce((sum,item) => sum + (Number(item.quantity) || 0),0) ?? 0;
+              const totalQuantity = order.items?.reduce((sum,item) => sum + (Number(item.quantity) || 0),0) ?? 0;
               return <Fragment key={order._id}><tr className={expanded === order._id ? 'is-expanded' : ''}>
                 <td>{number.format((page - 1) * pageSize + index + 1)}</td>
                 <th scope="row"><bdi>{order.orderNumber}</bdi></th>
@@ -201,7 +201,7 @@ function ManagementOrdersView({ token, onExpired }: { token: string; onExpired: 
                 <td>{asDate(order.createdAt) ? dates.format(asDate(order.createdAt)!) : '—'}</td>
                 <td>{deliveryDate(order)}</td>
                 <td>{number.format(order.items?.length ?? 0)}</td>
-                <td>{number.format(weight)}</td>
+                <td>{number.format(totalQuantity)}</td>
                 <td className="orders-amount">{money.format(order.total ?? 0)} <small>کارسا</small></td>
                 <td><button type="button" className="orders-expand-button" aria-expanded={expanded === order._id} onClick={() => void toggleDetails(order)}>{expanded === order._id ? 'بستن' : 'مشاهده'}{expanded === order._id ? <ChevronUp size={15}/> : <ChevronDown size={15}/>}</button></td>
               </tr>
