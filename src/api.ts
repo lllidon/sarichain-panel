@@ -258,3 +258,18 @@ export function readInventoryProducts(token: string, search: string, page: numbe
     signal, headers: { Authorization: `Bearer ${token}` },
   });
 }
+
+export type StoreOrderLine = { _id?: string; name: string; quantity: number; unitName?: string; unitPrice?: { min: number; max: number }; lineSubtotal?: { min: number; max: number }; image?: string | null; sellerName?: string; sku?: string };
+export type StoreOrder = { _id: string; orderNumber: string; status: string; total: number; subtotal?: { min: number; max: number }; price?: { min: number; max: number }; createdAt?: string; updatedAt?: string; customer?: { fullName?: string; phone?: string; organization?: string }; items: StoreOrderLine[]; delivery?: { method?: string; trackingCode?: string; addressSnapshot?: { title?: string; address?: string; city?: string; province?: string } }; adminNote?: string; meta?: { shipping?: { fee?: number; status?: string }; payment?: { status?: string } }; events?: Array<{ fromStatus?: string; toStatus?: string; occurredAt?: string }> };
+export type StoreOrderStatus = 'all' | 'current' | 'pending' | 'confirmed' | 'processing' | 'shipped' | 'completed' | 'cancelled' | 'returned';
+export type StoreOrderPage = { items: StoreOrder[]; total: number; page: number; limit: number; counts: { current: number; completed: number; returned: number; cancelled: number; total: number } };
+export function readStoreOrders(token: string, page: number, status: StoreOrderStatus, search: string, signal: AbortSignal) {
+  const query = new URLSearchParams({ page: String(page), limit: '20', status, search });
+  return request<StoreOrderPage>(`/organization/store-orders?${query}`, { signal, headers: { Authorization: `Bearer ${token}` } });
+}
+export function readStoreOrder(token: string, id: string, signal: AbortSignal) {
+  return request<StoreOrder>(`/organization/store-orders/${encodeURIComponent(id)}`, { signal, headers: { Authorization: `Bearer ${token}` } });
+}
+export function updateStoreOrder(token: string, id: string, fields: { status?: string; total?: number; shippingFee?: number; trackingCode?: string; adminNote?: string }) {
+  return write<StoreOrder>(`/organization/store-orders/${encodeURIComponent(id)}`, 'PATCH', token, fields);
+}
