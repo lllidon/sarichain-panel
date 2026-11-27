@@ -642,3 +642,7 @@ td svg { vertical-align: middle; color: var(--muted); }
  .store-order-kanban-dialog { width:100%; max-height:none; overflow:visible; border:0; box-shadow:none; }
  .store-order-kanban-dialog .editor-actions,.store-order-kanban-dialog .store-order-popup-actions,.store-order-kanban-dialog .editor-heading > button { display:none!important; }
 }
+
+.secondary-button { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:36px; padding:8px 12px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--text); font:inherit; font-size:11px; cursor:pointer; }
+.secondary-button:hover { border-color:var(--green); color:var(--green); }
+.secondary-button:disabled { opacity:.55; cursor:not-allowed; }
