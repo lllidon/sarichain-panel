@@ -12,7 +12,7 @@ const speedFields: Array<{id:TransportSpeed;label:string;target:string;field:'no
 const standardDefaults: Omit<TransportZoneTariffs,'zones'|'speeds'> = {
   baseKar:2,distanceWeight:0.02,billableWeightWeight:0.001,stopWeight:0.1,
   densityKgPerM3:250,minimumKar:2,refrigeratedBaseKar:0,refrigeratedPerKgKar:0,fragileMultiplier:1.15,
-  hubEnabled:false,hubLatitude:null,hubLongitude:null,hubHandlingKar:0,hubPerKgKar:0,hubSupportsRefrigeration:false,hubMaxWeightKg:0,hubMaxVolumeM3:0,
+  hubEnabled:false,hubLatitude:null,hubLongitude:null,hubHandlingKar:0,hubPerKgKar:0,hubSupportsRefrigeration:false,hubSupportsFragile:false,hubMaxWeightKg:0,hubMaxVolumeM3:0,
   normalMultiplier:1,specialMultiplier:1.35,expressMultiplier:1.8,urgentMultiplier:2.5,
 };
 const calculatorDefaults = {distance:35,weight:80,volume:0.8,stops:2,speed:'normal' as TransportSpeed};
@@ -122,6 +122,7 @@ export default function TransportZoneTariffsView({token,onExpired}:{token:string
               <label><span><Weight size={14}/> حداکثر ظرفیت وزن مرکز (kg)</span><input type="number" min="0" step="1" value={data.hubMaxWeightKg} onChange={e=>update('hubMaxWeightKg',Number(e.target.value))}/></label>
               <label><span><Package size={14}/> حداکثر ظرفیت حجم مرکز (m³)</span><input type="number" min="0" step="0.01" value={data.hubMaxVolumeM3} onChange={e=>update('hubMaxVolumeM3',Number(e.target.value))}/></label>
               <label className="transport-hub-toggle"><input type="checkbox" checked={data.hubSupportsRefrigeration} onChange={e=>setData(current=>current?({...current,hubSupportsRefrigeration:e.target.checked}):current)}/><span>مرکز تجمیع دارای سردخانه و زنجیره سرد است</span></label>
+            <label className="transport-hub-toggle"><input type="checkbox" checked={data.hubSupportsFragile} onChange={e=>setData(current=>current?({...current,hubSupportsFragile:e.target.checked}):current)}/><span>مرکز تجمیع برای بار حساس و شکستنی تجهیزات و فرایند محافظت دارد</span></label>
             </div>
             <p className="transport-hub-note">تا زمان ثبت مختصات و ظرفیت مثبت وزن و حجم، یا در صورت غیرفعال بودن مرکز، گزینه تجمیع حذف می‌شود. برای بار یخچالی نیز قابلیت سردخانه باید فعال باشد.</p>
           </div>
