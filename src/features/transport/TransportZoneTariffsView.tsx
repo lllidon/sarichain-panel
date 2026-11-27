@@ -27,6 +27,8 @@ export default function TransportZoneTariffsView({token,onExpired}:{token:string
   const [volume,setVolume]=useState(calculatorDefaults.volume);
   const [stops,setStops]=useState(calculatorDefaults.stops);
   const [speed,setSpeed]=useState<TransportSpeed>(calculatorDefaults.speed);
+  const [refrigerated,setRefrigerated]=useState(false);
+  const [fragile,setFragile]=useState(false);
   const refresh=useCallback(()=>setRevision(v=>v+1),[]);
   useEffect(()=>{
     const controller=new AbortController();
@@ -43,8 +45,11 @@ export default function TransportZoneTariffsView({token,onExpired}:{token:string
     const field=speedFields.find(x=>x.id===speed)!.field;
     const multiplier=data[field];
     const raw=data.baseKar+distance*data.distanceWeight+billable*data.billableWeightWeight+Math.max(0,stops-2)*data.stopWeight;
-    return {billable,raw,total:Math.max(data.minimumKar,raw*multiplier),multiplier};
-  },[data,distance,weight,volume,stops,speed]);
+    const transport=Math.max(data.minimumKar,Math.round(raw*multiplier*10000)/10000);
+    const coldCharge=refrigerated?data.refrigeratedBaseKar+billable*data.refrigeratedPerKgKar:0;
+    const protectedTransport=transport*(fragile?data.fragileMultiplier:1);
+    return {billable,transport,coldCharge,fragileMultiplier:fragile?data.fragileMultiplier:1,total:protectedTransport+coldCharge,multiplier};
+  },[data,distance,weight,volume,stops,speed,refrigerated,fragile]);
   type NumericTariffKey = Exclude<keyof Omit<TransportZoneTariffs,'zones'|'speeds'>,'hubEnabled'|'hubSupportsRefrigeration'>;
   function update<K extends NumericTariffKey>(key:K,value:number){
     setData(current=>current?({...current,[key]:value}):current);
@@ -65,6 +70,7 @@ export default function TransportZoneTariffsView({token,onExpired}:{token:string
   function resetCalculator(){
     setDistance(calculatorDefaults.distance);setWeight(calculatorDefaults.weight);
     setVolume(calculatorDefaults.volume);setStops(calculatorDefaults.stops);setSpeed(calculatorDefaults.speed);
+    setRefrigerated(false);setFragile(false);
   }
   async function save(event:FormEvent){
     event.preventDefault();if(!data)return;
@@ -87,10 +93,14 @@ export default function TransportZoneTariffsView({token,onExpired}:{token:string
           <label><span><Package size={15}/> حجم (m³)</span><input type="number" min="0" step="0.01" value={volume} onChange={e=>setVolume(Math.max(0,Number(e.target.value)))}/></label>
           <label><span><Truck size={15}/> تعداد توقف</span><input type="number" min="2" max="20" step="1" value={stops} onChange={e=>setStops(Math.min(20,Math.max(2,Number(e.target.value))))}/></label>
           <label><span><Clock3 size={15}/> سرعت تحویل</span><select value={speed} onChange={e=>setSpeed(e.target.value as TransportSpeed)}>{speedFields.map(x=><option key={x.id} value={x.id}>{x.label}</option>)}</select></label>
+          <label className="transport-calculator-flag"><span><Package size={15}/> بار یخچالی</span><input type="checkbox" checked={refrigerated} onChange={e=>setRefrigerated(e.target.checked)}/></label>
+          <label className="transport-calculator-flag"><span><Scale size={15}/> بار حساس / شکستنی</span><input type="checkbox" checked={fragile} onChange={e=>setFragile(e.target.checked)}/></label>
         </div>
         {preview&&<div className="transport-calculator-result">
           <div><small><Scale size={13}/> وزن قابل محاسبه</small><b>{number.format(preview.billable)} kg</b></div>
           <div><small><Gauge size={13}/> ضریب سرعت</small><b>× {number.format(preview.multiplier)}</b></div>
+          <div><small><Package size={13}/> هزینه یخچالی</small><b>{number.format(preview.coldCharge)} کارسا</b></div>
+          <div><small><Scale size={13}/> ضریب بار حساس</small><b>× {number.format(preview.fragileMultiplier)}</b></div>
           <div className="transport-calculator-total"><small><Activity size={13}/> هزینه نهایی تخمینی</small><strong>{number.format(preview.total)} <em>کارسا</em></strong></div>
         </div>}
       </section>
