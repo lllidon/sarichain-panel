@@ -111,8 +111,11 @@ export default function StoreOrdersView({ token, onExpired }: { token: string; o
         .then(() => updateStoreOrder(token, order._id, { status }))
         .then(() => undefined);
       statusWrites.current.set(order._id, currentWrite);
-      await currentWrite;
-      if (statusWrites.current.get(order._id) === currentWrite) statusWrites.current.delete(order._id);
+      try {
+        await currentWrite;
+      } finally {
+        if (statusWrites.current.get(order._id) === currentWrite) statusWrites.current.delete(order._id);
+      }
     } catch (failure) {
       if (failure instanceof ApiError && failure.status === 401) onExpired();
       else setError(failure instanceof Error
