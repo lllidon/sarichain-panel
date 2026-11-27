@@ -20,9 +20,9 @@ import { type Section, sections } from './features/catalog/catalog';
 const tokenKey = 'sarichain-panel-token';
 const demoKey = 'sarichain-panel-demo';
 
-function getSection(): Section | MemberGroup | 'directory' | 'orders' | 'transport' | 'transport-orders' | 'transport-tariffs' | 'account-upgrades' | 'inventory' {
+function getSection(): Section | MemberGroup | 'directory' | 'orders' | 'transport' | 'transport-orders' | 'transport-tariffs' | 'account-upgrades' | 'inventory' | 'store-kanban' {
   const section = location.hash.slice(1);
-  if (section === 'directory' || section === 'orders' || section === 'transport' || section === 'transport-orders' || section === 'transport-tariffs' || section === 'account-upgrades' || section === 'inventory') return section;
+  if (section === 'directory' || section === 'orders' || section === 'transport' || section === 'transport-orders' || section === 'transport-tariffs' || section === 'account-upgrades' || section === 'inventory' || section === 'store-kanban') return section;
   if (Object.hasOwn(memberSections, section)) return section as MemberGroup;
   return Object.hasOwn(sections, section) ? section as Section : 'products';
 }
@@ -107,6 +107,7 @@ export default function App() {
   const clientOnly = access?.role === 'client';
   const visibleSection = clientOnly ? 'orders' : section;
   const isOrders = visibleSection === 'orders';
+  const isStoreKanban = visibleSection === 'store-kanban';
   const isTransport = visibleSection === 'transport';
   const isTransportOrders = visibleSection === 'transport-orders';
   const isTransportTariffs = visibleSection === 'transport-tariffs';
@@ -114,7 +115,7 @@ export default function App() {
   const isInventory = visibleSection === 'inventory';
   const isMembers = Object.hasOwn(memberSections, visibleSection);
   const isDirectory = visibleSection === 'directory';
-  const current = isOrders ? { label: 'سفارش‌ها' } : isInventory ? { label: 'مدیریت موجودی' } : isAccountUpgrades ? { label: 'درخواست ارتقای حساب' } : isTransportOrders ? { label: 'سفارش‌های حمل' } : isTransportTariffs ? { label: 'زون‌بندی و تعرفه حمل' } : isTransport ? { label: 'وسایل نقلیه' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
+  const current = isStoreKanban ? { label: 'مدیریت سفارشات' } : isOrders ? { label: 'سفارش‌ها' } : isInventory ? { label: 'مدیریت موجودی' } : isAccountUpgrades ? { label: 'درخواست ارتقای حساب' } : isTransportOrders ? { label: 'سفارش‌های حمل' } : isTransportTariffs ? { label: 'زون‌بندی و تعرفه حمل' } : isTransport ? { label: 'وسایل نقلیه' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
   const canReviewUpgrades = access?.role === 'management' || access?.role === 'admin';
   const hasNavigation = signedIn && Boolean(demo || access);
   const identity = (
@@ -144,6 +145,7 @@ export default function App() {
       </nav>
       {token && access?.role === 'management' && <nav className="sidebar-menu members-menu" aria-label="عملیات">
         <h2>عملیات</h2>
+        <a href="#store-kanban" aria-current={isStoreKanban ? 'page' : undefined}><ClipboardList size={18} /> مدیریت سفارشات</a>
         <a href="#inventory" aria-current={isInventory ? 'page' : undefined}><PackageSearch size={18} /> مدیریت موجودی</a>
         <a href="#transport-orders" aria-current={isTransportOrders ? 'page' : undefined}><ClipboardList size={18} /> سفارش‌های حمل</a>
         <a href="#transport" aria-current={isTransport ? 'page' : undefined}><Truck size={18} /> وسایل نقلیه</a>
@@ -181,7 +183,7 @@ export default function App() {
               aria-controls="mobile-navigation" aria-expanded={menuOpen}
               onClick={() => { menu.current?.showModal(); setMenuOpen(true); }}><Menu size={21} /></button>}
             {!signedIn ? <a href="./" className="identity"><img src="/img/sarichain-logo.svg" alt="پنل ساری‌چین" width="116" height="39" /></a>
-            : <span className="header-context">{!isOrders && <>{isDirectory ? 'معرفی' : isTransport || isTransportOrders ? 'عملیات' : isMembers ? 'اعضا' : 'کاتالوگ'} <span aria-hidden="true">/</span></>}{current.label}</span>}
+            : <span className="header-context">{!isOrders && <>{isStoreKanban || isInventory || isTransport || isTransportOrders || isTransportTariffs ? 'عملیات' : isDirectory ? 'معرفی' : isMembers ? 'اعضا' : 'کاتالوگ'} <span aria-hidden="true">/</span></>}{current.label}</span>}
           </div>
           <div className="header-actions">
             {signedIn && <span className={demo ? 'mode demo' : 'mode'}>{demo ? 'داده آزمایشی' : access ? roleLabels[access.role] : 'داده بک‌اند'}</span>}
@@ -198,8 +200,11 @@ export default function App() {
         {signedIn
           ? token && !access
             ? <main className="workspace"><p role="status">{accessError ? 'دسترسی حساب دریافت نشد. دوباره وارد شوید.' : 'در حال دریافت دسترسی حساب…'}</p></main>
-             : isOrders && token
-              ? access?.role === 'management' ? <StoreOrdersView token={token} onExpired={expire} /> : <OrdersView token={token} onExpired={expire} />
+             : isStoreKanban && token && access?.role === 'management'
+              ? <StoreOrdersView token={token} onExpired={expire} />
+              : isStoreKanban ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
+              : isOrders && token
+              ? <OrdersView token={token} onExpired={expire} />
               : isInventory && token && access?.role === 'management'
                 ? <InventoryView token={token} onExpired={expire} />
               : isInventory ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
