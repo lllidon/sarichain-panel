@@ -123,7 +123,7 @@ export default function TransportZoneTariffsView({token,onExpired}:{token:string
               <label><span><Package size={14}/> حداکثر ظرفیت حجم مرکز (m³)</span><input type="number" min="0" step="0.01" value={data.hubMaxVolumeM3} onChange={e=>update('hubMaxVolumeM3',Number(e.target.value))}/></label>
               <label className="transport-hub-toggle"><input type="checkbox" checked={data.hubSupportsRefrigeration} onChange={e=>setData(current=>current?({...current,hubSupportsRefrigeration:e.target.checked}):current)}/><span>مرکز تجمیع دارای سردخانه و زنجیره سرد است</span></label>
             </div>
-            <p className="transport-hub-note">تا زمانی که مختصات مرکز ثبت نشود، یا مرکز غیرفعال باشد، گزینه تجمیع از محاسبه حذف می‌شود.</p>
+            <p className="transport-hub-note">تا زمان ثبت مختصات و ظرفیت مثبت وزن و حجم، یا در صورت غیرفعال بودن مرکز، گزینه تجمیع حذف می‌شود. برای بار یخچالی نیز قابلیت سردخانه باید فعال باشد.</p>
           </div>
           <div className="transport-zone-rate-group"><header><b>ضرایب سرعت تحویل</b><span>روی مبلغ پایه محاسبه‌شده اعمال می‌شوند</span></header>
             <div className="tariff-grid">{speedFields.map(item=><label key={item.id}><span><Clock3 size={14}/> {item.label} · {item.target}</span><input type="number" min="0.1" max="10" step="0.01" value={data[item.field]} onChange={e=>update(item.field,Number(e.target.value))}/></label>)}</div>
