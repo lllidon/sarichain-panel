@@ -133,13 +133,13 @@ export type HomeSlide = {
 };
 export type HomeSlideInput = Omit<HomeSlide, '_id'>;
 export function readHomeSlides(token: string, signal: AbortSignal) {
-  return request<HomeSlide[]>('/home-slides', { signal, headers: { Authorization: \`Bearer \${token}\` } });
+  return request<HomeSlide[]>('/home-slides', { signal, headers: { Authorization: `Bearer ${token}` } });
 }
 export function saveHomeSlide(token: string, fields: HomeSlideInput, id?: string) {
-  return write<HomeSlide>(\`/home-slides\${id ? '/' + id : ''}\`, id ? 'PATCH' : 'POST', token, fields);
+  return write<HomeSlide>(`/home-slides${id ? '/' + id : ''}`, id ? 'PATCH' : 'POST', token, fields);
 }
 export function deleteHomeSlide(token: string, id: string) {
-  return write<void>(\`/home-slides/\${id}\`, 'DELETE', token);
+  return write<void>(`/home-slides/${id}`, 'DELETE', token);
 }
 
 export function readAccess(token: string, signal: AbortSignal) {
