@@ -11,7 +11,9 @@ const speedFields: Array<{id:TransportSpeed;label:string;target:string;field:'no
 ];
 const standardDefaults: Omit<TransportZoneTariffs,'zones'|'speeds'> = {
   baseKar:2,distanceWeight:0.02,billableWeightWeight:0.001,stopWeight:0.1,
-  densityKgPerM3:250,minimumKar:2,normalMultiplier:1,specialMultiplier:1.35,expressMultiplier:1.8,urgentMultiplier:2.5,
+  densityKgPerM3:250,minimumKar:2,refrigeratedBaseKar:0,refrigeratedPerKgKar:0,fragileMultiplier:1.15,
+  hubEnabled:false,hubHandlingKar:0,hubPerKgKar:0,
+  normalMultiplier:1,specialMultiplier:1.35,expressMultiplier:1.8,urgentMultiplier:2.5,
 };
 const calculatorDefaults = {distance:35,weight:80,volume:0.8,stops:2,speed:'normal' as TransportSpeed};
 export default function TransportZoneTariffsView({token,onExpired}:{token:string;onExpired:()=>void}) {
@@ -43,7 +45,8 @@ export default function TransportZoneTariffsView({token,onExpired}:{token:string
     const raw=data.baseKar+distance*data.distanceWeight+billable*data.billableWeightWeight+Math.max(0,stops-2)*data.stopWeight;
     return {billable,raw,total:Math.max(data.minimumKar,raw*multiplier),multiplier};
   },[data,distance,weight,volume,stops,speed]);
-  function update<K extends keyof Omit<TransportZoneTariffs,'zones'|'speeds'>>(key:K,value:number){
+  type NumericTariffKey = Exclude<keyof Omit<TransportZoneTariffs,'zones'|'speeds'>,'hubEnabled'>;
+  function update<K extends NumericTariffKey>(key:K,value:number){
     setData(current=>current?({...current,[key]:value}):current);
   }
   function restoreStandard(){
@@ -93,6 +96,23 @@ export default function TransportZoneTariffsView({token,onExpired}:{token:string
             <label><span><Truck size={14}/> وزن ضریب توقف</span><input type="number" min="0" step="0.0001" value={data.stopWeight} onChange={e=>update('stopWeight',Number(e.target.value))}/></label>
             <label><span><Package size={14}/> ضریب چگالی (kg/m³)</span><input type="number" min="1" step="1" value={data.densityKgPerM3} onChange={e=>update('densityKgPerM3',Number(e.target.value))}/></label>
             <label><span><Calculator size={14}/> حداقل هزینه (کارسا)</span><input type="number" min="0" step="0.0001" value={data.minimumKar} onChange={e=>update('minimumKar',Number(e.target.value))}/></label>
+          </div>
+          <div className="transport-zone-rate-group"><header><b>هزینه‌های شرایط ویژه حمل</b><span>برای بارهای یخچالی و حساس</span></header>
+            <div className="tariff-grid">
+              <label><span><Package size={14}/> هزینه پایه حمل یخچالی (کارسا)</span><input type="number" min="0" step="0.0001" value={data.refrigeratedBaseKar} onChange={e=>update('refrigeratedBaseKar',Number(e.target.value))}/></label>
+              <label><span><Weight size={14}/> هزینه یخچالی به‌ازای هر کیلوگرم</span><input type="number" min="0" step="0.0001" value={data.refrigeratedPerKgKar} onChange={e=>update('refrigeratedPerKgKar',Number(e.target.value))}/></label>
+              <label><span><Scale size={14}/> ضریب بار حساس و شکستنی</span><input type="number" min="0.1" max="10" step="0.01" value={data.fragileMultiplier} onChange={e=>update('fragileMultiplier',Number(e.target.value))}/></label>
+            </div>
+          </div>
+          <div className="transport-zone-rate-group"><header><b>مرکز تجمیع ساری‌چین</b><span>در صورت فعال‌سازی، موتور حمل مسیر مستقیم و تجمیعی را مقایسه می‌کند</span></header>
+            <label className="transport-hub-toggle"><input type="checkbox" checked={data.hubEnabled} onChange={e=>setData(current=>current?({...current,hubEnabled:e.target.checked}):current)}/><span>استفاده از مرکز تجمیع در محاسبه گزینه‌های حمل مجاز باشد</span></label>
+            <div className="tariff-grid">
+              <label><span><MapPin size={14}/> عرض جغرافیایی مرکز</span><input type="number" min="-90" max="90" step="0.000001" value={data.hubLatitude ?? ''} onChange={e=>update('hubLatitude',Number(e.target.value))}/></label>
+              <label><span><MapPin size={14}/> طول جغرافیایی مرکز</span><input type="number" min="-180" max="180" step="0.000001" value={data.hubLongitude ?? ''} onChange={e=>update('hubLongitude',Number(e.target.value))}/></label>
+              <label><span><Package size={14}/> هزینه پردازش هر سفارش تجمیعی</span><input type="number" min="0" step="0.0001" value={data.hubHandlingKar} onChange={e=>update('hubHandlingKar',Number(e.target.value))}/></label>
+              <label><span><Weight size={14}/> هزینه تجمیع به‌ازای هر کیلوگرم</span><input type="number" min="0" step="0.0001" value={data.hubPerKgKar} onChange={e=>update('hubPerKgKar',Number(e.target.value))}/></label>
+            </div>
+            <p className="transport-hub-note">تا زمانی که مختصات مرکز ثبت نشود، یا مرکز غیرفعال باشد، گزینه تجمیع از محاسبه حذف می‌شود.</p>
           </div>
           <div className="transport-zone-rate-group"><header><b>ضرایب سرعت تحویل</b><span>روی مبلغ پایه محاسبه‌شده اعمال می‌شوند</span></header>
             <div className="tariff-grid">{speedFields.map(item=><label key={item.id}><span><Clock3 size={14}/> {item.label} · {item.target}</span><input type="number" min="0.1" max="10" step="0.01" value={data[item.field]} onChange={e=>update(item.field,Number(e.target.value))}/></label>)}</div>
