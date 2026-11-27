@@ -529,3 +529,6 @@ td svg { vertical-align: middle; color: var(--muted); }
 .transport-hub-toggle { display:flex; align-items:center; gap:10px; margin:12px 14px 0; color:var(--text); font-size:12px; cursor:pointer; }
 .transport-hub-toggle input { width:17px; height:17px; accent-color:var(--green); }
 .transport-hub-note { margin:10px 14px 0; color:var(--muted); font-size:11px; line-height:1.8; }
+
+.transport-calculator-fields .transport-calculator-flag { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:39px; padding:7px 9px; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
+.transport-calculator-fields .transport-calculator-flag input { width:17px; min-height:17px; margin:0; accent-color:var(--green); }
