@@ -1,5 +1,6 @@
 import { readAccess, ApiError } from './api';
 import OrdersView from './features/organization/OrdersView';
+import StoreOrdersView from './features/organization/StoreOrdersView';
 import TransportVehiclesView from './features/transport/TransportVehiclesView';
 import TransportOrdersView from './features/transport/TransportOrdersView';
 import TransportZoneTariffsView from './features/transport/TransportZoneTariffsView';
@@ -198,7 +199,7 @@ export default function App() {
           ? token && !access
             ? <main className="workspace"><p role="status">{accessError ? 'دسترسی حساب دریافت نشد. دوباره وارد شوید.' : 'در حال دریافت دسترسی حساب…'}</p></main>
              : isOrders && token
-              ? <OrdersView token={token} onExpired={expire} />
+              ? access?.role === 'management' ? <StoreOrdersView token={token} onExpired={expire} /> : <OrdersView token={token} onExpired={expire} />
               : isInventory && token && access?.role === 'management'
                 ? <InventoryView token={token} onExpired={expire} />
               : isInventory ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
