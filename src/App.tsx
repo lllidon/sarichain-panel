@@ -9,11 +9,12 @@ import AccountUpgradeRequestsView from './features/members/AccountUpgradeRequest
 import SettingsDrawer from './features/organization/SettingsDrawer';
 import { roleLabels, type Access } from './features/organization/organization';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { BookUser, Calculator, ClipboardList, FileCheck2, LogOut, Menu, Moon, PackageSearch, Settings, Sun, Truck, Users, X, Coins } from 'lucide-react';
+import { BookUser, Calculator, ClipboardList, FileCheck2, LogOut, Menu, Moon, PackageSearch, Settings, Sun, Truck, Users, X, Coins, ImagePlus } from 'lucide-react';
 import Login from './features/auth/Login';
 import CatalogView from './features/catalog/CatalogView';
 import InventoryView from './features/inventory/InventoryView';
 import SuppliersView from './features/directory/SuppliersView';
+import HomeSlidesView from './features/home-slides/HomeSlidesView';
 import MembersView from './features/members/MembersView';
 import { type MemberGroup, memberSections } from './features/members/members';
 import { type Section, sections } from './features/catalog/catalog';
@@ -21,9 +22,9 @@ import { type Section, sections } from './features/catalog/catalog';
 const tokenKey = 'sarichain-panel-token';
 const demoKey = 'sarichain-panel-demo';
 
-function getSection(): Section | MemberGroup | 'directory' | 'orders' | 'transport' | 'transport-orders' | 'transport-tariffs' | 'account-upgrades' | 'inventory' | 'store-kanban' | 'karsha' {
+function getSection(): Section | MemberGroup | 'directory' | 'orders' | 'transport' | 'transport-orders' | 'transport-tariffs' | 'account-upgrades' | 'inventory' | 'store-kanban' | 'karsha' | 'home-slides' {
   const section = location.hash.slice(1);
-  if (section === 'directory' || section === 'orders' || section === 'transport' || section === 'transport-orders' || section === 'transport-tariffs' || section === 'account-upgrades' || section === 'inventory' || section === 'store-kanban' || section === 'karsha') return section;
+  if (section === 'directory' || section === 'orders' || section === 'transport' || section === 'transport-orders' || section === 'transport-tariffs' || section === 'account-upgrades' || section === 'inventory' || section === 'store-kanban' || section === 'karsha' || section === 'home-slides') return section;
   if (Object.hasOwn(memberSections, section)) return section as MemberGroup;
   return Object.hasOwn(sections, section) ? section as Section : 'orders';
 }
@@ -117,7 +118,8 @@ export default function App() {
   const isInventory = visibleSection === 'inventory';
   const isMembers = Object.hasOwn(memberSections, visibleSection);
   const isDirectory = visibleSection === 'directory';
-  const current = isKarsha ? { label: 'مدیریت کارسا' } : isStoreKanban ? { label: 'مدیریت سفارشات' } : isOrders ? { label: 'سفارش‌ها' } : isInventory ? { label: 'مدیریت موجودی' } : isAccountUpgrades ? { label: 'درخواست ارتقای حساب' } : isTransportOrders ? { label: 'سفارش‌های حمل' } : isTransportTariffs ? { label: 'زون‌بندی و تعرفه حمل' } : isTransport ? { label: 'وسایل نقلیه' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
+  const isHomeSlides = visibleSection === 'home-slides';
+  const current = isHomeSlides ? { label: 'مدیریت اسلایدر صفحه اصلی' } : isKarsha ? { label: 'مدیریت کارسا' } : isStoreKanban ? { label: 'مدیریت سفارشات' } : isOrders ? { label: 'سفارش‌ها' } : isInventory ? { label: 'مدیریت موجودی' } : isAccountUpgrades ? { label: 'درخواست ارتقای حساب' } : isTransportOrders ? { label: 'سفارش‌های حمل' } : isTransportTariffs ? { label: 'زون‌بندی و تعرفه حمل' } : isTransport ? { label: 'وسایل نقلیه' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
   const canReviewUpgrades = access?.role === 'management' || access?.role === 'admin';
   const hasNavigation = signedIn && Boolean(demo || access);
   const identity = (
@@ -153,6 +155,7 @@ export default function App() {
         <a href="#transport" aria-current={isTransport ? 'page' : undefined}><Truck size={18} /> وسایل نقلیه</a>
         <a href="#transport-tariffs" aria-current={isTransportTariffs ? 'page' : undefined}><Calculator size={18} /> زون‌بندی و تعرفه حمل</a>
         <a href="#karsha" aria-current={isKarsha ? 'page' : undefined}><Coins size={18} /> مدیریت کارسا</a>
+        <a href="#home-slides" aria-current={isHomeSlides ? 'page' : undefined}><ImagePlus size={18} /> اسلایدر صفحه اصلی</a>
       </nav>}
       <nav className="sidebar-menu members-menu" aria-label="معرفی">
         <h2>معرفی</h2>
@@ -186,7 +189,7 @@ export default function App() {
               aria-controls="mobile-navigation" aria-expanded={menuOpen}
               onClick={() => { menu.current?.showModal(); setMenuOpen(true); }}><Menu size={21} /></button>}
             {!signedIn ? <a href="./" className="identity"><img src="/img/sarichain-logo.svg" alt="پنل ساری‌چین" width="116" height="39" /></a>
-            : <span className="header-context">{!isOrders && <>{isStoreKanban || isKarsha || isInventory || isTransport || isTransportOrders || isTransportTariffs ? 'عملیات' : isDirectory ? 'معرفی' : isMembers ? 'اعضا' : 'کاتالوگ'} <span aria-hidden="true">/</span></>}{current.label}</span>}
+            : <span className="header-context">{!isOrders && <>{isStoreKanban || isKarsha || isInventory || isTransport || isTransportOrders || isTransportTariffs || isHomeSlides ? 'عملیات' : isDirectory ? 'معرفی' : isMembers ? 'اعضا' : 'کاتالوگ'} <span aria-hidden="true">/</span></>}{current.label}</span>}
           </div>
           <div className="header-actions">
             {signedIn && <span className={demo ? 'mode demo' : 'mode'}>{demo ? 'داده آزمایشی' : access ? roleLabels[access.role] : 'داده بک‌اند'}</span>}
@@ -203,7 +206,10 @@ export default function App() {
         {signedIn
           ? token && !access
             ? <main className="workspace"><p role="status">{accessError ? 'دسترسی حساب دریافت نشد. دوباره وارد شوید.' : 'در حال دریافت دسترسی حساب…'}</p></main>
-             : isKarsha && token && access?.role === 'management'
+             : isHomeSlides && token && access?.role === 'management'
+              ? <HomeSlidesView token={token} onExpired={expire} />
+              : isHomeSlides ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
+              : isKarsha && token && access?.role === 'management'
               ? <KarshaManagementView token={token} onExpired={expire} />
               : isKarsha ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
               : isStoreKanban && token && access?.role === 'management'
