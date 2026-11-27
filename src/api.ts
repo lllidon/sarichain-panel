@@ -127,6 +127,21 @@ export function saveSupplier(token: string, fields: object, id?: string) {
   return write<Supplier>(`/directory/material-suppliers${id ? '/' + id : ''}`, id ? 'PATCH' : 'POST', token, fields);
 }
 
+export type HomeSlide = {
+  _id: string; eyebrow: string; title: string; description: string; imageUrl: string;
+  imageAlt: string; cta: string; href: string; order: number; isActive: boolean;
+};
+export type HomeSlideInput = Omit<HomeSlide, '_id'>;
+export function readHomeSlides(token: string, signal: AbortSignal) {
+  return request<HomeSlide[]>('/home-slides', { signal, headers: { Authorization: \`Bearer \${token}\` } });
+}
+export function saveHomeSlide(token: string, fields: HomeSlideInput, id?: string) {
+  return write<HomeSlide>(\`/home-slides\${id ? '/' + id : ''}\`, id ? 'PATCH' : 'POST', token, fields);
+}
+export function deleteHomeSlide(token: string, id: string) {
+  return write<void>(\`/home-slides/\${id}\`, 'DELETE', token);
+}
+
 export function readAccess(token: string, signal: AbortSignal) {
   return request<Access>('/auth/me', { signal, headers: { Authorization: `Bearer ${token}` } });
 }
