@@ -718,3 +718,74 @@ td svg { vertical-align: middle; color: var(--muted); }
  .orders-line-list img,.orders-line-placeholder { width:40px; height:40px; }
  .orders-line-price { grid-column:2; text-align:right; }
 }
+
+
+/* Refined order register: grouped columns and compact mobile summary */
+.orders-data-table { width:100%; min-width:980px; table-layout:fixed; }
+.orders-data-table .orders-col-number { width:15%; }
+.orders-data-table .orders-col-customer { width:21%; }
+.orders-data-table .orders-col-status { width:16%; }
+.orders-data-table .orders-col-dates { width:17%; }
+.orders-data-table .orders-col-items { width:12%; }
+.orders-data-table .orders-col-total { width:11%; }
+.orders-data-table .orders-col-details { width:8%; }
+.orders-data-table th,.orders-data-table td { white-space:normal; overflow-wrap:anywhere; }
+.orders-data-table .orders-col-number bdi { display:block; direction:ltr; text-align:right; font-size:10px; }
+.orders-data-table .orders-col-number > small { display:block; margin-bottom:4px; color:var(--muted); font-size:9px; }
+.orders-customer-cell { min-width:0; }
+.orders-customer-cell > span:last-child { min-width:0; }
+.orders-customer-cell strong,.orders-customer-cell small { overflow-wrap:anywhere; }
+.orders-combined-cell { display:grid; justify-items:start; gap:5px; min-width:0; }
+.orders-combined-cell > small { color:var(--muted); font-size:9px; line-height:1.7; }
+.orders-mobile-total,.orders-mobile-expand { display:none; }
+.orders-currency { display:block; color:var(--muted); font-size:9px; margin-top:3px; }
+.orders-accordion-content { display:grid; grid-template-columns:minmax(0,7fr) minmax(280px,5fr); gap:14px; padding:16px; align-items:start; }
+.orders-accordion-content > section { min-width:0; }
+.orders-accordion-content > section:first-child { grid-column:1; grid-row:1; }
+.orders-accordion-content > .orders-meta-section { grid-column:2; grid-row:1; }
+.orders-accordion-content > .orders-extra-grid { grid-column:1 / -1; }
+.orders-meta-grid { grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); }
+.orders-meta-grid > div { min-width:0; overflow-wrap:anywhere; }
+.orders-meta-grid strong { overflow-wrap:anywhere; word-break:break-word; }
+@media(max-width:900px) {
+ .orders-data-table { min-width:820px; }
+ .orders-accordion-content { grid-template-columns:minmax(0,1fr) minmax(230px,.8fr); }
+}
+@media(max-width:650px) {
+ .orders-data-table { min-width:0; width:100%; table-layout:fixed; font-size:10px; }
+ .orders-data-table .orders-col-number { width:26%; }
+ .orders-data-table .orders-col-customer { width:39%; }
+ .orders-data-table .orders-col-status { width:35%; }
+ .orders-data-table .orders-col-dates,
+ .orders-data-table .orders-col-items,
+ .orders-data-table .orders-col-total,
+ .orders-data-table .orders-col-details { display:none; }
+ .orders-data-table th,.orders-data-table td { padding:9px 5px; }
+ .orders-data-table thead th { font-size:9px; line-height:1.5; }
+ .orders-data-table .orders-col-number bdi { font-size:9px; word-break:break-all; }
+ .orders-customer-cell { gap:5px; align-items:flex-start; }
+ .orders-avatar { width:25px; height:25px; font-size:10px; }
+ .orders-customer-cell strong { font-size:10px; }
+ .orders-customer-cell small { font-size:8px; }
+ .orders-combined-cell { gap:5px; }
+ .orders-combined-cell > small { font-size:8px; }
+ .orders-mobile-total { display:block; font-size:10px; color:var(--text); }
+ .orders-mobile-expand { display:inline-flex; padding:4px 7px; font-size:9px; }
+ .orders-accordion-row > td { display:table-cell!important; width:100%; }
+ .orders-accordion-content { display:grid; grid-template-columns:minmax(0,1fr); padding:10px; gap:12px; }
+ .orders-accordion-content > section:first-child,
+ .orders-accordion-content > .orders-meta-section,
+ .orders-accordion-content > .orders-extra-grid { grid-column:1; grid-row:auto; }
+ .orders-meta-grid,.orders-extra-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .orders-line-list article { grid-template-columns:40px minmax(0,1fr); }
+ .orders-line-list img,.orders-line-placeholder { width:38px; height:38px; }
+ .orders-line-price { grid-column:2; text-align:right; }
+}
+@media(max-width:360px) {
+ .orders-data-table .orders-col-number { width:28%; }
+ .orders-data-table .orders-col-customer { width:36%; }
+ .orders-data-table .orders-col-status { width:36%; }
+ .orders-data-table th,.orders-data-table td { padding-inline:3px; }
+ .orders-customer-cell { gap:3px; }
+ .orders-avatar { display:none; }
+}
