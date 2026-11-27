@@ -45,7 +45,7 @@ export default function TransportZoneTariffsView({token,onExpired}:{token:string
     const raw=data.baseKar+distance*data.distanceWeight+billable*data.billableWeightWeight+Math.max(0,stops-2)*data.stopWeight;
     return {billable,raw,total:Math.max(data.minimumKar,raw*multiplier),multiplier};
   },[data,distance,weight,volume,stops,speed]);
-  type NumericTariffKey = Exclude<keyof Omit<TransportZoneTariffs,'zones'|'speeds'>,'hubEnabled'>;
+  type NumericTariffKey = Exclude<keyof Omit<TransportZoneTariffs,'zones'|'speeds'>,'hubEnabled'|'hubSupportsRefrigeration'>;
   function update<K extends NumericTariffKey>(key:K,value:number){
     setData(current=>current?({...current,[key]:value}):current);
   }
