@@ -1,6 +1,7 @@
 import { readAccess, ApiError } from './api';
 import OrdersView from './features/organization/OrdersView';
 import StoreOrdersView from './features/organization/StoreOrdersView';
+import KarshaManagementView from './features/organization/KarshaManagementView';
 import TransportVehiclesView from './features/transport/TransportVehiclesView';
 import TransportOrdersView from './features/transport/TransportOrdersView';
 import TransportZoneTariffsView from './features/transport/TransportZoneTariffsView';
@@ -8,7 +9,7 @@ import AccountUpgradeRequestsView from './features/members/AccountUpgradeRequest
 import SettingsDrawer from './features/organization/SettingsDrawer';
 import { roleLabels, type Access } from './features/organization/organization';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { BookUser, Calculator, ClipboardList, FileCheck2, LogOut, Menu, Moon, PackageSearch, Settings, Sun, Truck, Users, X } from 'lucide-react';
+import { BookUser, Calculator, ClipboardList, FileCheck2, LogOut, Menu, Moon, PackageSearch, Settings, Sun, Truck, Users, X, Coins } from 'lucide-react';
 import Login from './features/auth/Login';
 import CatalogView from './features/catalog/CatalogView';
 import InventoryView from './features/inventory/InventoryView';
@@ -20,9 +21,9 @@ import { type Section, sections } from './features/catalog/catalog';
 const tokenKey = 'sarichain-panel-token';
 const demoKey = 'sarichain-panel-demo';
 
-function getSection(): Section | MemberGroup | 'directory' | 'orders' | 'transport' | 'transport-orders' | 'transport-tariffs' | 'account-upgrades' | 'inventory' | 'store-kanban' {
+function getSection(): Section | MemberGroup | 'directory' | 'orders' | 'transport' | 'transport-orders' | 'transport-tariffs' | 'account-upgrades' | 'inventory' | 'store-kanban' | 'karsha' {
   const section = location.hash.slice(1);
-  if (section === 'directory' || section === 'orders' || section === 'transport' || section === 'transport-orders' || section === 'transport-tariffs' || section === 'account-upgrades' || section === 'inventory' || section === 'store-kanban') return section;
+  if (section === 'directory' || section === 'orders' || section === 'transport' || section === 'transport-orders' || section === 'transport-tariffs' || section === 'account-upgrades' || section === 'inventory' || section === 'store-kanban' || section === 'karsha') return section;
   if (Object.hasOwn(memberSections, section)) return section as MemberGroup;
   return Object.hasOwn(sections, section) ? section as Section : 'orders';
 }
@@ -108,6 +109,7 @@ export default function App() {
   const visibleSection = clientOnly ? 'orders' : section;
   const isOrders = visibleSection === 'orders';
   const isStoreKanban = visibleSection === 'store-kanban';
+  const isKarsha = visibleSection === 'karsha';
   const isTransport = visibleSection === 'transport';
   const isTransportOrders = visibleSection === 'transport-orders';
   const isTransportTariffs = visibleSection === 'transport-tariffs';
@@ -115,7 +117,7 @@ export default function App() {
   const isInventory = visibleSection === 'inventory';
   const isMembers = Object.hasOwn(memberSections, visibleSection);
   const isDirectory = visibleSection === 'directory';
-  const current = isStoreKanban ? { label: 'مدیریت سفارشات' } : isOrders ? { label: 'سفارش‌ها' } : isInventory ? { label: 'مدیریت موجودی' } : isAccountUpgrades ? { label: 'درخواست ارتقای حساب' } : isTransportOrders ? { label: 'سفارش‌های حمل' } : isTransportTariffs ? { label: 'زون‌بندی و تعرفه حمل' } : isTransport ? { label: 'وسایل نقلیه' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
+  const current = isKarsha ? { label: 'مدیریت کارسا' } : isStoreKanban ? { label: 'مدیریت سفارشات' } : isOrders ? { label: 'سفارش‌ها' } : isInventory ? { label: 'مدیریت موجودی' } : isAccountUpgrades ? { label: 'درخواست ارتقای حساب' } : isTransportOrders ? { label: 'سفارش‌های حمل' } : isTransportTariffs ? { label: 'زون‌بندی و تعرفه حمل' } : isTransport ? { label: 'وسایل نقلیه' } : isDirectory ? { label: 'مواد اولیه' } : isMembers ? (section === 'users' ? memberSections.users : { label: 'همکاران' }) : sections[section as Section];
   const canReviewUpgrades = access?.role === 'management' || access?.role === 'admin';
   const hasNavigation = signedIn && Boolean(demo || access);
   const identity = (
@@ -150,6 +152,7 @@ export default function App() {
         <a href="#transport-orders" aria-current={isTransportOrders ? 'page' : undefined}><ClipboardList size={18} /> سفارش‌های حمل</a>
         <a href="#transport" aria-current={isTransport ? 'page' : undefined}><Truck size={18} /> وسایل نقلیه</a>
         <a href="#transport-tariffs" aria-current={isTransportTariffs ? 'page' : undefined}><Calculator size={18} /> زون‌بندی و تعرفه حمل</a>
+        <a href="#karsha" aria-current={isKarsha ? 'page' : undefined}><Coins size={18} /> مدیریت کارسا</a>
       </nav>}
       <nav className="sidebar-menu members-menu" aria-label="معرفی">
         <h2>معرفی</h2>
@@ -200,7 +203,10 @@ export default function App() {
         {signedIn
           ? token && !access
             ? <main className="workspace"><p role="status">{accessError ? 'دسترسی حساب دریافت نشد. دوباره وارد شوید.' : 'در حال دریافت دسترسی حساب…'}</p></main>
-             : isStoreKanban && token && access?.role === 'management'
+             : isKarsha && token && access?.role === 'management'
+              ? <KarshaManagementView token={token} onExpired={expire} />
+              : isKarsha ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
+              : isStoreKanban && token && access?.role === 'management'
               ? <StoreOrdersView token={token} onExpired={expire} />
               : isStoreKanban ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
               : isOrders && token
