@@ -203,12 +203,17 @@ export function saveTransportTariffs(token: string, fields: TransportTariffs) {
 }
 
 export type TransportSpeed = 'normal' | 'special' | 'express' | 'urgent';
-export type TransportZoneRate = { zoneId: string; speed: TransportSpeed; baseKar: number; perKmKar: number; perBillableKgKar: number; stopKar: number; multiplier: number };
-export type TransportZoneTariffs = { rates: TransportZoneRate[]; densityKgPerM3: number; minimumKar: number; zones: Array<{id:string;label:string;minKm:number;maxKm:number|null}>; speeds: Array<{id:TransportSpeed;label:string;target:string}> };
+export type TransportZoneTariffs = {
+  baseKar:number; distanceWeight:number; billableWeightWeight:number; stopWeight:number;
+  densityKgPerM3:number; minimumKar:number;
+  normalMultiplier:number; specialMultiplier:number; expressMultiplier:number; urgentMultiplier:number;
+  zones:Array<{id:string;label:string;minKm:number;maxKm:number|null}>;
+  speeds:Array<{id:TransportSpeed;label:string;target:string}>;
+};
 export function readTransportZoneTariffs(token: string, signal: AbortSignal) {
   return request<TransportZoneTariffs>('/organization/transport-zone-tariffs', { signal, headers: { Authorization: `Bearer ${token}` } });
 }
-export function saveTransportZoneTariffs(token: string, fields: Pick<TransportZoneTariffs, 'rates'|'densityKgPerM3'|'minimumKar'>) {
+export function saveTransportZoneTariffs(token: string, fields: Omit<TransportZoneTariffs, 'zones'|'speeds'>) {
   return write<TransportZoneTariffs>('/organization/transport-zone-tariffs', 'PATCH', token, fields);
 }
 
