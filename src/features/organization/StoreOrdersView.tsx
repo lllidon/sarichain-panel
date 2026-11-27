@@ -92,16 +92,28 @@ export default function StoreOrdersView({ token, onExpired }: { token: string; o
   }
 
   async function changeStatus(order: StoreOrder, status: string) {
-    if (status === order.status) return;
-    setMovingId(order._id); setError('');
+    if (status === order.status) { setDraggingId(undefined); return; }
+
+    // Optimistic UI: move the card immediately; persist in the background.
+    setOrders(current => current.map(item => item._id === order._id ? { ...item, status } : item));
+    if (selected?._id === order._id) {
+      setSelected(current => current ? { ...current, status } : current);
+      setNextStatus(status);
+    }
+    setMovingId(order._id);
+    setDraggingId(undefined);
+    setError('');
+
     try {
       await updateStoreOrder(token, order._id, { status });
-      setOrders(current => current.map(item => item._id === order._id ? { ...item, status } : item));
-      if (selected?._id === order._id) { setSelected(current => current ? { ...current, status } : current); setNextStatus(status); }
     } catch (failure) {
       if (failure instanceof ApiError && failure.status === 401) onExpired();
-      else setError(failure instanceof Error ? failure.message : 'تغییر وضعیت سفارش ناموفق بود.');
-    } finally { setMovingId(undefined); setDraggingId(undefined); }
+      else setError(failure instanceof Error
+        ? `کارت در صفحه جابه‌جا شد، اما ثبت تغییر در سرور ناموفق بود: ${failure.message}`
+        : 'کارت در صفحه جابه‌جا شد، اما ثبت تغییر در سرور ناموفق بود. وضعیت نمایش‌داده‌شده در این صفحه حفظ شده است.');
+    } finally {
+      setMovingId(current => current === order._id ? undefined : current);
+    }
   }
 
   async function runAction(action: StoreOrderBoardAction) {
