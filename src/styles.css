@@ -428,3 +428,44 @@ td svg { vertical-align: middle; color: var(--muted); }
 .transport-quote-preview .transport-quote-total strong { font-size:24px; }
 .tariff-hint { margin-top:14px; color:var(--muted); font-size:12px; line-height:1.9; }
 @media(max-width:760px) { .transport-quote-preview { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+/* Compact horizontal transport calculator and icon-led tariff settings */
+.transport-zone-workspace .page-heading { margin-bottom:8px; }
+.transport-zone-workspace .tariff-card { margin:14px 0; }
+.transport-zone-workspace .transport-admin-section-heading h2 { display:flex; align-items:center; gap:8px; }
+.transport-zone-workspace .transport-admin-section-heading h2 svg { color:var(--green); }
+.transport-zone-workspace .tariff-grid label > span,
+.transport-calculator-fields label > span { display:flex; align-items:center; gap:6px; color:var(--muted); }
+.transport-zone-workspace .tariff-grid label > span svg,
+.transport-calculator-fields label > span svg { color:var(--green); flex:none; }
+.transport-calculator-card { border-color:color-mix(in srgb,var(--green) 28%,var(--line)); background:linear-gradient(135deg,var(--surface),var(--surface-alt)); }
+.transport-calculator-fields { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:9px; align-items:end; }
+.transport-calculator-fields label { display:grid; gap:6px; min-width:0; color:var(--muted); font-size:11px; }
+.transport-calculator-fields input,.transport-calculator-fields select {
+ width:100%; min-width:0; min-height:39px; padding:8px 9px; border:1px solid var(--line);
+ border-radius:8px; color:var(--text); background:var(--surface); font:inherit;
+}
+.transport-calculator-result { display:grid; grid-template-columns:1fr 1fr 1.5fr; gap:9px; margin-top:12px; }
+.transport-calculator-result > div { display:flex; justify-content:center; flex-direction:column; gap:5px; min-width:0; padding:10px 12px; border:1px solid var(--line); border-radius:9px; background:var(--surface); }
+.transport-calculator-result small { display:flex; align-items:center; gap:5px; color:var(--muted); font-size:10px; }
+.transport-calculator-result small svg { color:var(--green); }
+.transport-calculator-result b { font-size:14px; }
+.transport-calculator-result .transport-calculator-total { background:var(--accent); border-color:color-mix(in srgb,var(--green) 35%,var(--line)); }
+.transport-calculator-total strong { font-size:22px; color:var(--green); }
+.transport-calculator-total em { font-size:12px; font-style:normal; }
+.transport-reset-button { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:7px 10px; border:1px solid var(--line); border-radius:8px; color:var(--green); background:var(--surface); font:inherit; font-size:11px; white-space:nowrap; }
+.transport-reset-button:hover { background:var(--accent); border-color:var(--green); }
+.transport-zone-workspace .tariff-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.transport-zone-workspace .tariff-grid input { min-height:38px; }
+.transport-zone-workspace .transport-zone-rate-group { padding-bottom:12px; }
+@media(max-width:900px) {
+ .transport-calculator-fields { grid-template-columns:repeat(3,minmax(0,1fr)); }
+ .transport-zone-workspace .tariff-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:560px) {
+ .transport-calculator-fields { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .transport-calculator-result { grid-template-columns:1fr 1fr; }
+ .transport-calculator-result .transport-calculator-total { grid-column:1/-1; }
+ .transport-zone-workspace .transport-admin-section-heading { align-items:flex-start; }
+ .transport-zone-workspace .tariff-grid { grid-template-columns:1fr; }
+}
