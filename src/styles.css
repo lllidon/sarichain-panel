@@ -789,3 +789,21 @@ td svg { vertical-align: middle; color: var(--muted); }
  .orders-customer-cell { gap:3px; }
  .orders-avatar { display:none; }
 }
+
+
+/* Karsha wallet administration */
+.karsha-admin-workspace { display:grid; gap:14px; }
+.karsha-policy-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; margin:14px 0; }
+.karsha-policy-stats article { display:grid; gap:6px; min-width:0; padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--surface-alt); }
+.karsha-policy-stats span,.karsha-admin-help { color:var(--muted); font-size:10px; line-height:1.8; }
+.karsha-policy-stats strong { font-size:13px; overflow-wrap:anywhere; }
+.karsha-rate-form,.karsha-adjust-form,.karsha-ledger-filter { display:flex; flex-wrap:wrap; align-items:end; gap:10px; }
+.karsha-rate-form label,.karsha-adjust-form label,.karsha-ledger-filter label { display:grid; gap:6px; flex:1 1 190px; min-width:0; color:var(--muted); font-size:11px; }
+.karsha-rate-form input,.karsha-adjust-form input,.karsha-adjust-form select,.karsha-ledger-filter input { width:100%; min-width:0; padding:9px 10px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--text); font:inherit; }
+.karsha-admin-help { margin:10px 0 0; }
+.karsha-ledger-filter { margin-bottom:12px; }
+.karsha-ledger-table { min-width:900px; }
+.karsha-ledger-table td small { display:block; color:var(--muted); font-size:9px; }
+.karsha-ledger-table .positive { color:#16834b; }
+.karsha-ledger-table .negative { color:#c34d63; }
+@media(max-width:700px) { .karsha-policy-stats { grid-template-columns:repeat(2,minmax(0,1fr)); } .karsha-rate-form button,.karsha-adjust-form button { width:100%; justify-content:center; } }
