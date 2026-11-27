@@ -4,10 +4,10 @@ import { ApiError, readTransportZoneTariffs, saveTransportZoneTariffs, type Tran
 import { number } from '../catalog/catalog';
 
 const speedFields: Array<{id:TransportSpeed;label:string;target:string;field:'normalMultiplier'|'specialMultiplier'|'expressMultiplier'|'urgentMultiplier'}> = [
-  {id:'normal',label:'عادی',target:'زیر ۵ روز',field:'normalMultiplier'},
-  {id:'special',label:'ویژه',target:'زیر ۲ روز',field:'specialMultiplier'},
-  {id:'express',label:'اکسپرس',target:'همان روز',field:'expressMultiplier'},
-  {id:'urgent',label:'فوری',target:'زیر ۳ ساعت',field:'urgentMultiplier'},
+  {id:'normal',label:'اقتصادی',target:'حدود ۵ روز',field:'normalMultiplier'},
+  {id:'special',label:'عادی',target:'حدود ۳ روز',field:'specialMultiplier'},
+  {id:'express',label:'سریع',target:'تا فردا',field:'expressMultiplier'},
+  {id:'urgent',label:'فوری',target:'همان روز، در صورت وجود بازه',field:'urgentMultiplier'},
 ];
 const standardDefaults: Omit<TransportZoneTariffs,'zones'|'speeds'> = {
   baseKar:2,distanceWeight:0.02,billableWeightWeight:0.001,stopWeight:0.1,
