@@ -260,11 +260,11 @@ export function readInventoryProducts(token: string, search: string, page: numbe
 }
 
 export type StoreOrderLine = { _id?: string; name: string; quantity: number; unitName?: string; unitPrice?: { min: number; max: number }; lineSubtotal?: { min: number; max: number }; image?: string | null; sellerName?: string; sku?: string };
-export type StoreOrder = { _id: string; orderNumber: string; status: string; total: number; subtotal?: { min: number; max: number }; price?: { min: number; max: number }; createdAt?: string; updatedAt?: string; customer?: { fullName?: string; phone?: string; organization?: string }; items: StoreOrderLine[]; delivery?: { method?: string; trackingCode?: string; addressSnapshot?: { title?: string; address?: string; city?: string; province?: string } }; adminNote?: string; meta?: { shipping?: { fee?: number; status?: string }; payment?: { status?: string } }; events?: Array<{ fromStatus?: string; toStatus?: string; occurredAt?: string }> };
+export type StoreOrder = { _id: string; orderNumber: string; status: string; total: number; subtotal?: { min: number; max: number }; price?: { min: number; max: number }; createdAt?: string; updatedAt?: string; customer?: { fullName?: string; phone?: string; organization?: string }; items: StoreOrderLine[]; delivery?: { method?: string; trackingCode?: string; expectedAt?: string; estimatedDeliveryAt?: string; deliveryDate?: string; addressSnapshot?: { title?: string; address?: string; city?: string; province?: string } }; adminNote?: string; meta?: { shipping?: { fee?: number; status?: string }; payment?: { status?: string } }; events?: Array<{ fromStatus?: string; toStatus?: string; occurredAt?: string }> };
 export type StoreOrderStatus = 'all' | 'current' | 'pending' | 'confirmed' | 'processing' | 'shipped' | 'completed' | 'cancelled' | 'returned';
 export type StoreOrderPage = { items: StoreOrder[]; total: number; page: number; limit: number; counts: { current: number; completed: number; returned: number; cancelled: number; total: number } };
 export function readStoreOrders(token: string, page: number, status: StoreOrderStatus, search: string, signal: AbortSignal) {
-  const query = new URLSearchParams({ page: String(page), limit: '20', status, search });
+  const query = new URLSearchParams({ page: String(page), limit: '100', status, search });
   return request<StoreOrderPage>(`/organization/store-orders?${query}`, { signal, headers: { Authorization: `Bearer ${token}` } });
 }
 export function readStoreOrder(token: string, id: string, signal: AbortSignal) {
@@ -272,4 +272,27 @@ export function readStoreOrder(token: string, id: string, signal: AbortSignal) {
 }
 export function updateStoreOrder(token: string, id: string, fields: { status?: string; total?: number; shippingFee?: number; trackingCode?: string; adminNote?: string }) {
   return write<StoreOrder>(`/organization/store-orders/${encodeURIComponent(id)}`, 'PATCH', token, fields);
+}
+
+export type StoreOrderBoardAction = { id: string; label: string; type: 'status' | 'print'; targetStatus?: string };
+export type StoreOrderBoardColumn = { id: string; title: string; statuses: string[]; color: string; actions: StoreOrderBoardAction[] };
+export type StoreOrderBoardConfig = { columns: StoreOrderBoardColumn[] };
+export function readStoreOrderBoardConfig(token: string, signal: AbortSignal) {
+  return request<StoreOrderBoardConfig>('/organization/store-orders/board-config', { signal, headers: { Authorization: `Bearer ${token}` } });
+}
+export function saveStoreOrderBoardConfig(token: string, config: StoreOrderBoardConfig) {
+  return write<StoreOrderBoardConfig>('/organization/store-orders/board-config', 'PUT', token, config);
+}
+export async function readAllStoreOrders(token: string, search: string, signal: AbortSignal) {
+  const all: StoreOrder[] = [];
+  let page = 1;
+  let total = 0;
+  do {
+    const result = await readStoreOrders(token, page, 'all', search, signal);
+    all.push(...result.items);
+    total = result.total;
+    page += 1;
+    if (!result.items.length) break;
+  } while (all.length < total && page <= 1000);
+  return all;
 }
