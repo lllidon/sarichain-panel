@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Check, FileText, RefreshCw, X } from 'lucide-react';
 import { ApiError, readAccountUpgradeRequests, reviewAccountUpgradeRequest, type AccountUpgradeRequest } from '../../api';
 
-const kindLabels = { transport: 'ارتقای حساب به حمل‌کننده', producer: 'ارتقای حساب به تولیدکننده' };
+const kindLabels = { transport: 'ارتقای حساب به حمل‌کننده', producer: 'ارتقای حساب به تولیدکننده', producer_categories: 'درخواست تغییر دسته‌بندی‌های تولیدکننده' };
 const docLabels: Record<string, string> = {
   nationalId: 'کارت ملی', driverLicense: 'گواهینامه', vehicleCard: 'کارت خودرو', productionProof: 'مدرک فعالیت تولیدی',
 };
@@ -63,6 +63,18 @@ export default function AccountUpgradeRequestsView({ token, onExpired }: { token
           <div><dt>گواهینامه</dt><dd>{item.vehicle.license}</dd></div>
         </dl>}
         {item.producerType && <p>نوع تولیدکننده: <b>{item.producerType}</b></p>}
+        {item.kind === 'producer_categories' && <div className="account-upgrade-admin-details">
+          <p>دسته‌بندی‌های فعلی: <b>{(item.currentCategoryLabels || []).join('، ') || '—'}</b></p>
+          <p>دسته‌بندی‌های درخواستی: <b>{(item.requestedCategoryLabels || []).join('، ')}</b></p>
+          <p>افزودن: <b>{(item.requestedCategoryLabels || []).filter((name, index) => {
+            const id = item.requestedCategoryIds?.[index];
+            return id && !item.currentCategoryIds?.includes(id);
+          }).join('، ') || '—'}</b></p>
+          <p>حذف: <b>{(item.currentCategoryLabels || []).filter((name, index) => {
+            const id = item.currentCategoryIds?.[index];
+            return id && !item.requestedCategoryIds?.includes(id);
+          }).join('، ') || '—'}</b></p>
+        </div>}
         {item.requestedCategoryIds?.length ? <p>دسته‌بندی‌های درخواستی: <bdi>{(item.requestedCategoryLabels || item.requestedCategoryIds).join('، ')}</bdi></p> : null}
         <h3>مدارک ارسالی</h3>
         <div className="account-upgrade-admin-docs">{item.documents.map(doc => <a key={doc.type} href={doc.dataUrl} target="_blank" rel="noreferrer">
