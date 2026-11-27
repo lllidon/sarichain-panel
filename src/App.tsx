@@ -202,6 +202,9 @@ export default function App() {
               : isInventory && token && access?.role === 'management'
                 ? <InventoryView token={token} onExpired={expire} />
               : isInventory ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
+              : isInventory && token && access?.role === 'management'
+                ? <InventoryView token={token} onExpired={expire} />
+              : isInventory ? <main className="workspace"><p role="alert">این بخش فقط برای نقش مدیریت در دسترس است.</p></main>
               : isTransportOrders && token && access?.role === 'management'
                 ? <TransportOrdersView token={token} onExpired={expire} />
               : isTransportTariffs && token && access?.role === 'management'
