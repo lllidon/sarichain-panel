@@ -187,25 +187,20 @@ function ManagementOrdersView({ token, onExpired }: { token: string; onExpired: 
       {loading && !orders.length ? <div className="table-state" role="status">در حال دریافت سفارش‌ها…</div>
         : !filtered.length ? <div className="table-state">سفارشی با این فیلترها پیدا نشد.</div>
         : <div className="table-scroll orders-table-scroll">
-          <table className="orders-data-table"><thead><tr><th>ردیف</th><th>شماره سفارش</th><th>اطلاعات مشتری</th><th>شماره تماس</th><th>وضعیت سفارش</th><th>وضعیت پرداخت</th><th>تاریخ ثبت</th><th>تاریخ تحویل</th><th>تعداد اقلام</th><th>مجموع تعداد</th><th>قیمت کل</th><th>جزئیات</th></tr></thead>
+          <table className="orders-data-table"><thead><tr><th className="orders-col-number">سفارش</th><th className="orders-col-customer">اطلاعات مشتری</th><th className="orders-col-status">وضعیت سفارش و پرداخت</th><th className="orders-col-dates">تاریخ ثبت و تحویل</th><th className="orders-col-items">تعداد اقلام و مجموع</th><th className="orders-col-total">قیمت کل</th><th className="orders-col-details">جزئیات</th></tr></thead>
             <tbody>{visible.map((order,index) => {
               const detail = detailCache[order._id];
               const totalQuantity = order.items?.reduce((sum,item) => sum + (Number(item.quantity) || 0),0) ?? 0;
               return <Fragment key={order._id}><tr className={expanded === order._id ? 'is-expanded' : ''}>
-                <td>{number.format((page - 1) * pageSize + index + 1)}</td>
-                <th scope="row"><bdi>{order.orderNumber}</bdi></th>
-                <td><div className="orders-customer-cell"><span className="orders-avatar">{(order.customer?.fullName || order.customer?.organization || 'م').slice(0,1)}</span><span><strong>{order.customer?.fullName || order.customer?.organization || 'مشتری نامشخص'}</strong><small>{order.customer?.organization || '—'}</small></span></div></td>
-                <td><bdi>{order.customer?.phone || '—'}</bdi></td>
-                <td><span className={`orders-status-pill status-${order.status}`}>{statusText(order.status)}</span></td>
-                <td>{paymentText(order)}</td>
-                <td>{asDate(order.createdAt) ? dates.format(asDate(order.createdAt)!) : '—'}</td>
-                <td>{deliveryDate(order)}</td>
-                <td>{number.format(order.items?.length ?? 0)}</td>
-                <td>{number.format(totalQuantity)}</td>
-                <td className="orders-amount">{money.format(order.total ?? 0)} <small>کارسا</small></td>
-                <td><button type="button" className="orders-expand-button" aria-expanded={expanded === order._id} onClick={() => void toggleDetails(order)}>{expanded === order._id ? 'بستن' : 'مشاهده'}{expanded === order._id ? <ChevronUp size={15}/> : <ChevronDown size={15}/>}</button></td>
+                <th scope="row" className="orders-col-number"><small>{number.format((page - 1) * pageSize + index + 1)}.</small><bdi>{order.orderNumber}</bdi></th>
+                <td className="orders-col-customer"><div className="orders-customer-cell"><span className="orders-avatar">{(order.customer?.fullName || order.customer?.organization || 'م').slice(0,1)}</span><span><strong>{order.customer?.fullName || order.customer?.organization || 'مشتری نامشخص'}</strong><small>{order.customer?.phone || 'تلفن ثبت نشده'}</small>{order.customer?.organization && order.customer.organization !== order.customer.fullName && <small>{order.customer.organization}</small>}</span></div></td>
+                <td className="orders-col-status"><div className="orders-combined-cell"><span className={`orders-status-pill status-${order.status}`}>{statusText(order.status)}</span><small>پرداخت: {paymentText(order)}</small></div></td>
+                <td className="orders-col-dates"><div className="orders-combined-cell"><span>ثبت: {asDate(order.createdAt) ? dates.format(asDate(order.createdAt)!) : '—'}</span><small>تحویل: {deliveryDate(order)}</small></div></td>
+                <td className="orders-col-items"><div className="orders-combined-cell"><span>{number.format(order.items?.length ?? 0)} قلم کالا</span><small>مجموع تعداد: {number.format(totalQuantity)}</small></div></td>
+                <td className="orders-col-total"><strong className="orders-amount">{money.format(order.total ?? 0)}</strong><small className="orders-currency">کارسا</small></td>
+                <td className="orders-col-details"><button type="button" className="orders-expand-button" aria-expanded={expanded === order._id} onClick={() => void toggleDetails(order)}>{expanded === order._id ? 'بستن' : 'جزئیات'}{expanded === order._id ? <ChevronUp size={15}/> : <ChevronDown size={15}/>}</button></td>
               </tr>
-              {expanded === order._id && <tr key={order._id + '-details'} className="orders-accordion-row"><td colSpan={12}>
+              {expanded === order._id && <tr key={order._id + '-details'} className="orders-accordion-row"><td colSpan={7}>
                 {detailLoading === order._id ? <div className="orders-detail-loading">در حال دریافت جزئیات سفارش…</div>
                   : detail ? <div className="orders-accordion-content">
                     <section><h3><Package size={16}/>اقلام سفارش</h3><div className="orders-line-list">{detail.items?.map((item,i)=><article key={item._id || i}>
