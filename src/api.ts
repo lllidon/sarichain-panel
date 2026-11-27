@@ -236,7 +236,7 @@ export function saveTransportZoneTariffs(token: string, fields: Omit<TransportZo
 }
 
 export type AccountUpgradeRequest = {
-  _id: string; memberId: string; kind: 'transport' | 'producer'; status: 'pending' | 'approved' | 'rejected';
+  _id: string; memberId: string; kind: 'transport' | 'producer' | 'producer_categories'; status: 'pending' | 'approved' | 'rejected';
   producerType?: string; requestedCategoryIds?: string[]; requestedCategoryLabels?: string[];
   vehicle?: { type: string; model: string; year: number; capacityKg: number; capacityM3?: number; plate: string; license: string };
   memberSnapshot?: { fullName?: string; phone?: string; organization?: string };

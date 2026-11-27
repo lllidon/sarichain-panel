@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Check, FileText, RefreshCw, X } from 'lucide-react';
 import { ApiError, readAccountUpgradeRequests, reviewAccountUpgradeRequest, type AccountUpgradeRequest } from '../../api';
 
-const kindLabels = { transport: 'ارتقای حساب به حمل‌کننده', producer: 'ارتقای حساب به تولیدکننده' };
+const kindLabels = { transport: 'ارتقای حساب به حمل‌کننده', producer: 'ارتقای حساب به تولیدکننده', producer_categories: 'افزایش دسترسی دسته‌بندی تولیدکننده' };
 const docLabels: Record<string, string> = {
   nationalId: 'کارت ملی', driverLicense: 'گواهینامه', vehicleCard: 'کارت خودرو', productionProof: 'مدرک فعالیت تولیدی',
 };
@@ -64,11 +64,11 @@ export default function AccountUpgradeRequestsView({ token, onExpired }: { token
         </dl>}
         {item.producerType && <p>نوع تولیدکننده: <b>{item.producerType}</b></p>}
         {item.requestedCategoryIds?.length ? <p>دسته‌بندی‌های درخواستی: <bdi>{(item.requestedCategoryLabels || item.requestedCategoryIds).join('، ')}</bdi></p> : null}
-        <h3>مدارک ارسالی</h3>
+        {item.documents?.length > 0 && <><h3>مدارک ارسالی</h3>
         <div className="account-upgrade-admin-docs">{item.documents.map(doc => <a key={doc.type} href={doc.dataUrl} target="_blank" rel="noreferrer">
           {doc.mimeType.startsWith('image/') ? <img src={doc.dataUrl} alt={docLabels[doc.type] || doc.type}/> : <FileText size={28}/>}
           <span>{docLabels[doc.type] || doc.type}<small>{doc.fileName}</small></span>
-        </a>)}</div>
+        </a>)}</div></>}
         <label className="account-upgrade-admin-note">یادداشت بررسی / دلیل رد یا تکمیل مدارک
           <textarea rows={2} maxLength={500} value={notes[item._id] || ''} onChange={event => setNotes(current => ({ ...current, [item._id]: event.target.value }))}/>
         </label>
