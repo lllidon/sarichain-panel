@@ -12,7 +12,7 @@ const speedFields: Array<{id:TransportSpeed;label:string;target:string;field:'no
 const standardDefaults: Omit<TransportZoneTariffs,'zones'|'speeds'> = {
   baseKar:2,distanceWeight:0.02,billableWeightWeight:0.001,stopWeight:0.1,
   densityKgPerM3:250,minimumKar:2,refrigeratedBaseKar:0,refrigeratedPerKgKar:0,fragileMultiplier:1.15,
-  hubEnabled:false,hubHandlingKar:0,hubPerKgKar:0,
+  hubEnabled:false,hubHandlingKar:0,hubPerKgKar:0,hubSupportsRefrigeration:false,hubMaxWeightKg:0,hubMaxVolumeM3:0,
   normalMultiplier:1,specialMultiplier:1.35,expressMultiplier:1.8,urgentMultiplier:2.5,
 };
 const calculatorDefaults = {distance:35,weight:80,volume:0.8,stops:2,speed:'normal' as TransportSpeed};
@@ -119,6 +119,9 @@ export default function TransportZoneTariffsView({token,onExpired}:{token:string
               <label><span><MapPin size={14}/> طول جغرافیایی مرکز</span><input type="number" min="-180" max="180" step="0.000001" value={data.hubLongitude ?? ''} onChange={e=>updateCoordinate('hubLongitude',e.target.value)}/></label>
               <label><span><Package size={14}/> هزینه پردازش هر سفارش تجمیعی</span><input type="number" min="0" step="0.0001" value={data.hubHandlingKar} onChange={e=>update('hubHandlingKar',Number(e.target.value))}/></label>
               <label><span><Weight size={14}/> هزینه تجمیع به‌ازای هر کیلوگرم</span><input type="number" min="0" step="0.0001" value={data.hubPerKgKar} onChange={e=>update('hubPerKgKar',Number(e.target.value))}/></label>
+              <label><span><Weight size={14}/> حداکثر ظرفیت وزن مرکز (kg)</span><input type="number" min="0" step="1" value={data.hubMaxWeightKg} onChange={e=>update('hubMaxWeightKg',Number(e.target.value))}/></label>
+              <label><span><Package size={14}/> حداکثر ظرفیت حجم مرکز (m³)</span><input type="number" min="0" step="0.01" value={data.hubMaxVolumeM3} onChange={e=>update('hubMaxVolumeM3',Number(e.target.value))}/></label>
+              <label className="transport-hub-toggle"><input type="checkbox" checked={data.hubSupportsRefrigeration} onChange={e=>setData(current=>current?({...current,hubSupportsRefrigeration:e.target.checked}):current)}/><span>مرکز تجمیع دارای سردخانه و زنجیره سرد است</span></label>
             </div>
             <p className="transport-hub-note">تا زمانی که مختصات مرکز ثبت نشود، یا مرکز غیرفعال باشد، گزینه تجمیع از محاسبه حذف می‌شود.</p>
           </div>
