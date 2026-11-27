@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { ClipboardList, RefreshCw, Search, SlidersHorizontal, ChevronDown, ChevronUp, Package, Truck, Wallet, UserRound, CalendarDays, Phone, Hash, X, Filter, RotateCcw } from 'lucide-react';
 import { ApiError, readOrders, readAllStoreOrders, readStoreOrder, type StoreOrder } from '../../api';
 import { number } from '../catalog/catalog';
@@ -71,6 +71,7 @@ function ManagementOrdersView({ token, onExpired }: { token: string; onExpired: 
   const [error, setError] = useState('');
   const [orderNumber, setOrderNumber] = useState('');
   const [customerSearch, setCustomerSearch] = useState('');
+  const [customerFilter, setCustomerFilter] = useState('all');
   const [status, setStatus] = useState('all');
   const [advanced, setAdvanced] = useState(false);
   const [dateFrom, setDateFrom] = useState('');
@@ -86,19 +87,24 @@ function ManagementOrdersView({ token, onExpired }: { token: string; onExpired: 
   const [detailLoading, setDetailLoading] = useState<string>();
   const pageSize = 20;
 
-  const load = useCallback(async () => {
-    const controller = new AbortController();
+  const load = useCallback(async (signal?: AbortSignal) => {
+    const controller = signal ? undefined : new AbortController();
+    const activeSignal = signal ?? controller!.signal;
     setLoading(true); setError('');
     try {
-      const result = await readAllStoreOrders(token, '', controller.signal);
-      setOrders(result);
+      const result = await readAllStoreOrders(token, '', activeSignal);
+      if (!activeSignal.aborted) setOrders(result);
     } catch (failure) {
+      if (activeSignal.aborted) return;
       if (failure instanceof ApiError && failure.status === 401) onExpired();
       else setError(failure instanceof Error ? failure.message : 'دریافت سفارش‌ها ناموفق بود.');
-    } finally { setLoading(false); }
-    return () => controller.abort();
+    } finally { if (!activeSignal.aborted) setLoading(false); }
   }, [token, onExpired]);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    const controller = new AbortController();
+    void load(controller.signal);
+    return () => controller.abort();
+  }, [load]);
 
   const filtered = useMemo(() => orders.filter(order => {
     const created = asDate(order.createdAt);
@@ -107,6 +113,7 @@ function ManagementOrdersView({ token, onExpired }: { token: string; onExpired: 
     if (normalizedOrder && !order.orderNumber.toLocaleLowerCase().includes(normalizedOrder)) return false;
     if (normalizedCustomer && ![order.customer?.fullName, order.customer?.organization, order.customer?.phone].some(value => value?.toLocaleLowerCase().includes(normalizedCustomer))) return false;
     if (status !== 'all' && order.status !== status) return false;
+    if (customerFilter !== 'all' && (order.customer?.fullName || order.customer?.organization || 'مشتری نامشخص') !== customerFilter) return false;
     if (dateFrom && (!created || created < new Date(dateFrom + 'T00:00:00'))) return false;
     if (dateTo && (!created || created > new Date(dateTo + 'T23:59:59'))) return false;
     const pay = order.meta?.payment?.status || '';
@@ -116,12 +123,13 @@ function ManagementOrdersView({ token, onExpired }: { token: string; onExpired: 
     if (minAmount !== '' && (order.total ?? 0) < Number(minAmount)) return false;
     if (maxAmount !== '' && (order.total ?? 0) > Number(maxAmount)) return false;
     return true;
-  }), [orders, orderNumber, customerSearch, status, dateFrom, dateTo, paymentStatus, deliveryMethod, productSearch, minAmount, maxAmount]);
+  }), [orders, orderNumber, customerSearch, customerFilter, status, dateFrom, dateTo, paymentStatus, deliveryMethod, productSearch, minAmount, maxAmount]);
 
-  useEffect(() => setPage(1), [orderNumber, customerSearch, status, dateFrom, dateTo, paymentStatus, deliveryMethod, productSearch, minAmount, maxAmount]);
+  useEffect(() => setPage(1), [orderNumber, customerSearch, customerFilter, status, dateFrom, dateTo, paymentStatus, deliveryMethod, productSearch, minAmount, maxAmount]);
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const visible = filtered.slice((page - 1) * pageSize, page * pageSize);
   const deliveryMethods = useMemo(() => [...new Set(orders.map(order => order.delivery?.method).filter((v): v is string => Boolean(v)))], [orders]);
+  const customers = useMemo(() => [...new Set(orders.map(order => order.customer?.fullName || order.customer?.organization || 'مشتری نامشخص'))].sort((a,b) => a.localeCompare(b, 'fa')), [orders]);
 
   async function toggleDetails(order: StoreOrder) {
     if (expanded === order._id) { setExpanded(undefined); return; }
@@ -139,7 +147,7 @@ function ManagementOrdersView({ token, onExpired }: { token: string; onExpired: 
   }
 
   function resetFilters() {
-    setOrderNumber(''); setCustomerSearch(''); setStatus('all'); setDateFrom(''); setDateTo('');
+    setOrderNumber(''); setCustomerSearch(''); setCustomerFilter('all'); setStatus('all'); setDateFrom(''); setDateTo('');
     setPaymentStatus('all'); setDeliveryMethod('all'); setProductSearch(''); setMinAmount(''); setMaxAmount('');
   }
 
@@ -162,6 +170,7 @@ function ManagementOrdersView({ token, onExpired }: { token: string; onExpired: 
         <button type="button" className="secondary-button" aria-expanded={advanced} onClick={() => setAdvanced(value => !value)}><SlidersHorizontal size={16}/>{advanced ? 'بستن فیلتر پیشرفته' : 'فیلتر پیشرفته'}{advanced ? <ChevronUp size={15}/> : <ChevronDown size={15}/>}</button>
       </div>
       {advanced && <div className="orders-advanced-filters">
+        <label><UserRound size={15}/>کاربران<select value={customerFilter} onChange={e => setCustomerFilter(e.target.value)}><option value="all">همه کاربران</option>{customers.map(customer => <option key={customer} value={customer}>{customer}</option>)}</select></label>
         <label><CalendarDays size={15}/>از تاریخ<input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} /></label>
         <label><CalendarDays size={15}/>تا تاریخ<input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} /></label>
         <label><Wallet size={15}/>وضعیت پرداخت<select value={paymentStatus} onChange={e => setPaymentStatus(e.target.value)}><option value="all">همه</option>{Object.entries(paymentLabels).map(([key,label]) => <option key={key} value={key}>{label}</option>)}</select></label>
@@ -182,7 +191,7 @@ function ManagementOrdersView({ token, onExpired }: { token: string; onExpired: 
             <tbody>{visible.map((order,index) => {
               const detail = detailCache[order._id];
               const weight = order.items?.reduce((sum,item) => sum + (Number(item.quantity) || 0),0) ?? 0;
-              return <><tr key={order._id} className={expanded === order._id ? 'is-expanded' : ''}>
+              return <Fragment key={order._id}><tr className={expanded === order._id ? 'is-expanded' : ''}>
                 <td>{number.format((page - 1) * pageSize + index + 1)}</td>
                 <th scope="row"><bdi>{order.orderNumber}</bdi></th>
                 <td><div className="orders-customer-cell"><span className="orders-avatar">{(order.customer?.fullName || order.customer?.organization || 'م').slice(0,1)}</span><span><strong>{order.customer?.fullName || order.customer?.organization || 'مشتری نامشخص'}</strong><small>{order.customer?.organization || '—'}</small></span></div></td>
@@ -208,7 +217,7 @@ function ManagementOrdersView({ token, onExpired }: { token: string; onExpired: 
                     <section className="orders-extra-grid"><div><small>جمع کالاها</small><strong>{money.format(detail.subtotal?.max ?? 0)} کارسا</strong></div><div><small>هزینه ارسال</small><strong>{money.format(detail.meta?.shipping?.fee ?? 0)} کارسا</strong></div><div><small>مبلغ نهایی</small><strong>{money.format(detail.total ?? 0)} کارسا</strong></div><div><small>کد رهگیری</small><strong>{detail.delivery?.trackingCode || '—'}</strong></div><div><small>آدرس تحویل</small><strong>{[detail.delivery?.addressSnapshot?.title,detail.delivery?.addressSnapshot?.province,detail.delivery?.addressSnapshot?.city,detail.delivery?.addressSnapshot?.address].filter(Boolean).join('، ') || '—'}</strong></div><div><small>یادداشت مدیریت</small><strong>{detail.adminNote || '—'}</strong></div></section>
                   </div> : <div className="orders-detail-loading">جزئیات سفارش در دسترس نیست.</div>}
               </td></tr>}
-              </>;
+              </Fragment>;
             })}</tbody>
           </table>
         </div>}
