@@ -141,7 +141,7 @@ export default function App() {
         <a href="#customers" aria-current={isMembers && visibleSection !== 'users' ? 'page' : undefined}><Users size={18} /> مشتریان و همکاران</a>
         {token && canReviewUpgrades && <a href="#account-upgrades" aria-current={isAccountUpgrades ? 'page' : undefined}><FileCheck2 size={18} /> درخواست ارتقای حساب</a>}
       </nav>
-      {token && access?.role === 'management' && <nav className="sidebar-menu members-menu" aria-label="حمل‌ونقل">
+      {token && access?.role === 'management' && <nav className="sidebar-menu members-menu" aria-label="عملیات">
         <h2>عملیات</h2>
         <a href="#inventory" aria-current={isInventory ? 'page' : undefined}><PackageSearch size={18} /> مدیریت موجودی</a>
         <a href="#transport-orders" aria-current={isTransportOrders ? 'page' : undefined}><ClipboardList size={18} /> سفارش‌های حمل</a>
