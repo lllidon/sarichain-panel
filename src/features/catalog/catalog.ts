@@ -26,6 +26,10 @@ export type CatalogItem = {
   physical?: {
     standardDensityKgM3?: number;
     shippingWeightG?: number;
+    requiresRefrigeration?: boolean;
+    temperatureMinC?: number;
+    temperatureMaxC?: number;
+    fragile?: boolean;
     shippingDimensions?: { lengthMm: number; widthMm: number; heightMm: number };
   };
   sku?: string;
