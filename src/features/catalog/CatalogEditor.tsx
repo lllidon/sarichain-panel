@@ -103,8 +103,16 @@ export default function CatalogEditor({ section, mode, item, token, onClose, onS
             const dimensions = ['lengthMm', 'widthMm', 'heightMm'] as const;
             const hasDimensions = dimensions.some(key => value(key));
             if (hasDimensions && dimensions.some(key => !value(key))) throw new Error('هر سه بُعد بسته را وارد کنید.');
+            const temperatureMinC = numeric('temperatureMinC');
+            const temperatureMaxC = numeric('temperatureMaxC');
+            if ((temperatureMinC === undefined) !== (temperatureMaxC === undefined) ||
+                (temperatureMinC !== undefined && temperatureMaxC !== undefined && temperatureMinC > temperatureMaxC)) {
+              throw new Error('برای زنجیره سرد، هر دو حد دما را وارد کنید و حداقل را بیشتر از حداکثر نگذارید.');
+            }
             body.physical = {
               standardDensityKgM3: numeric('standardDensityKgM3'), shippingWeightG: numeric('shippingWeightG'),
+              requiresRefrigeration: form.get('requiresRefrigeration') === 'on', fragile: form.get('fragile') === 'on',
+              temperatureMinC, temperatureMaxC,
               ...(hasDimensions && { shippingDimensions: Object.fromEntries(dimensions.map(key => [key, numeric(key)])) }),
             };
             const optionRows = value('options').split('\n').filter(line => line.trim());
@@ -237,6 +245,10 @@ export default function CatalogEditor({ section, mode, item, token, onClose, onS
                         <label>طول (میلی‌متر)<input type="number" step="any" name="lengthMm" defaultValue={physical?.shippingDimensions?.lengthMm} /></label>
                         <label>عرض (میلی‌متر)<input type="number" step="any" name="widthMm" defaultValue={physical?.shippingDimensions?.widthMm} /></label>
                         <label>ارتفاع (میلی‌متر)<input type="number" step="any" name="heightMm" defaultValue={physical?.shippingDimensions?.heightMm} /></label>
+                        <label className="editor-checkbox"><input type="checkbox" name="requiresRefrigeration" defaultChecked={physical?.requiresRefrigeration ?? false} /> نیازمند حمل یخچالی / زنجیره سرد</label>
+                        <label>حداقل دمای مجاز (°C)<input type="number" step="0.1" min="-80" max="80" name="temperatureMinC" defaultValue={physical?.temperatureMinC} /></label>
+                        <label>حداکثر دمای مجاز (°C)<input type="number" step="0.1" min="-80" max="80" name="temperatureMaxC" defaultValue={physical?.temperatureMaxC} /></label>
+                        <label className="editor-checkbox"><input type="checkbox" name="fragile" defaultChecked={physical?.fragile ?? false} /> کالای حساس یا شکستنی</label>
                         <label className="editor-wide">گزینه‌ها (هر خط: نام=مقدار)<textarea name="options" rows={3} defaultValue={item?.options?.map(option => `${option.name}=${option.value}`).join('\n')} /></label>
                       </div>
                     </details>
