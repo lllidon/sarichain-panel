@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Check, FileText, RefreshCw, X } from 'lucide-react';
 import { ApiError, readAccountUpgradeRequests, reviewAccountUpgradeRequest, type AccountUpgradeRequest } from '../../api';
 
-const kindLabels = { transport: 'ارتقای حساب به حمل‌کننده', producer: 'ارتقای حساب به تولیدکننده' };
+const kindLabels = { transport: 'ارتقای حساب به حمل‌کننده', producer: 'ارتقای حساب به تولیدکننده', producer_categories: 'درخواست تغییر دسته‌بندی‌های تولیدکننده' };
 const docLabels: Record<string, string> = {
   nationalId: 'کارت ملی', driverLicense: 'گواهینامه', vehicleCard: 'کارت خودرو', productionProof: 'مدرک فعالیت تولیدی',
 };
