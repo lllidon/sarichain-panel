@@ -206,6 +206,8 @@ export type TransportSpeed = 'normal' | 'special' | 'express' | 'urgent';
 export type TransportZoneTariffs = {
   baseKar:number; distanceWeight:number; billableWeightWeight:number; stopWeight:number;
   densityKgPerM3:number; minimumKar:number;
+  refrigeratedBaseKar:number; refrigeratedPerKgKar:number; fragileMultiplier:number;
+  hubEnabled:boolean; hubLatitude?:number; hubLongitude?:number; hubHandlingKar:number; hubPerKgKar:number;
   normalMultiplier:number; specialMultiplier:number; expressMultiplier:number; urgentMultiplier:number;
   zones:Array<{id:string;label:string;minKm:number;maxKm:number|null}>;
   speeds:Array<{id:TransportSpeed;label:string;target:string}>;
