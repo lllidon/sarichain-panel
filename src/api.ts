@@ -233,3 +233,25 @@ export function readAccountUpgradeRequests(token: string, signal: AbortSignal) {
 export function reviewAccountUpgradeRequest(token: string, id: string, status: 'approved' | 'rejected', note: string) {
   return write<{ id: string; status: string }>(`/members/account-upgrades/${id}/review`, 'PATCH', token, { status, note });
 }
+
+
+export type SellerStock = {
+  sellerId: string; name: string; city?: string; offerId: string;
+  price: number; stock: number; reservedStock: number; availableStock: number;
+  unit?: string; updatedAt?: string;
+};
+export type InventoryProduct = {
+  _id: string; name: string; sku?: string; unit?: string; isActive: boolean;
+  totalStock: number; reservedStock: number; availableStock: number;
+  sellerCount: number; sellers: SellerStock[];
+};
+export type InventoryProductPage = {
+  items: InventoryProduct[]; total: number; page: number; limit: number;
+  summary: { products: number; totalStock: number; availableStock: number; sellerOffers: number };
+};
+export function readInventoryProducts(token: string, search: string, page: number, signal: AbortSignal) {
+  const query = new URLSearchParams({ search, page: String(page), limit: '20' });
+  return request<InventoryProductPage>(`/inventory/products?${query}`, {
+    signal, headers: { Authorization: `Bearer ${token}` },
+  });
+}
