@@ -356,8 +356,14 @@ export type InspectionReport = {
   request?:{locationTitle?:string;cropType?:string;acreage?:number;producer?:{fullName?:string}};
   createdAt:string; inspector?:{fullName?:string;phone?:string;organization?:string};
 };
+export type InspectionLocation = {
+  id:string; title:string; type?:string; city?:string; province?:string;
+  latitude?:number; longitude?:number; createdAt?:string;
+  producer?:{fullName?:string;phone?:string;organization?:string};
+};
 export type InspectionManagementData = {
-  applications:InspectionApplication[]; requests:InspectionRequest[]; reports:InspectionReport[];
+  applications:InspectionApplication[]; locations:InspectionLocation[];
+  requests:InspectionRequest[]; reports:InspectionReport[];
 };
 export function readInspectionManagement(token:string,signal:AbortSignal) {
   return request<InspectionManagementData>('/organization/inspections/overview',{signal,headers:{Authorization:'Bearer '+token}});

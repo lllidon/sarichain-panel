@@ -133,6 +133,16 @@ export default function InspectionManagementView({token,onExpired}:{token:string
           </article>)}</div>}
       </section>
       <section className="tariff-card">
+        <div className="transport-admin-section-heading"><div><h2><MapPinned size={18}/> موقعیت‌های تولیدی ثبت‌شده</h2><p>هر باغ و زمین ثبت‌شده، حتی پیش از درخواست بازدید، در فهرست موقعیت‌های نظارتی قرار می‌گیرد.</p></div></div>
+        {!data?.locations.length?<div className="table-state">موقعیت تولیدی ثبت‌شده‌ای وجود ندارد.</div>:
+          <div className="table-scroll"><table className="data-table"><thead><tr><th>موقعیت</th><th>تولیدکننده</th><th>نوع</th><th>مختصات</th><th>نقشه</th></tr></thead><tbody>
+            {data.locations.map(item=><tr key={item.id}><td>{item.title}<small>{[item.city,item.province].filter(Boolean).join('، ')}</small></td>
+              <td>{item.producer?.fullName||'—'}<small>{item.producer?.phone||''}</small></td><td>{item.type||'—'}</td>
+              <td dir="ltr">{item.latitude?.toFixed(5)||'—'}, {item.longitude?.toFixed(5)||'—'}</td>
+              <td>{item.latitude!=null&&item.longitude!=null&&<a href={'https://www.openstreetmap.org/?mlat='+item.latitude+'&mlon='+item.longitude+'#map=15/'+item.latitude+'/'+item.longitude} target="_blank" rel="noreferrer">نمایش روی نقشه</a>}</td></tr>)}
+          </tbody></table></div>}
+      </section>
+      <section className="tariff-card">
         <div className="transport-admin-section-heading"><div><h2><MapPinned size={18}/> درخواست‌های ثبت‌شده</h2><p>آخرین وضعیت مأموریت‌های نظارتی تولیدکنندگان</p></div></div>
         {!data?.requests.length?<div className="table-state">درخواستی ثبت نشده است.</div>:
           <div className="table-scroll"><table className="data-table"><thead><tr><th>محل تولید</th><th>تولیدکننده</th><th>مساحت</th><th>پاداش</th><th>وضعیت</th><th>تاریخ ثبت</th></tr></thead><tbody>
