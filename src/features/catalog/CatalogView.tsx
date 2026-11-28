@@ -241,7 +241,7 @@ export default function CatalogView({ section, token, canEdit, onExpired }: { se
               <ChevronRight size={16} /> قبلی
             </button>
             <div className="pagination-pages" aria-label="شماره صفحات">
-              {paginationItems(page, pages).map((item, index) => typeof item === 'number' ? (
+              {paginationItems(page, pages).map(item => typeof item === 'number' ? (
                 <button key={item} className="pagination-page" type="button"
                   aria-label={`رفتن به صفحه ${number.format(item)}`}
                   aria-current={page === item ? 'page' : undefined}
