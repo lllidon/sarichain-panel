@@ -18,6 +18,7 @@ const specialtyLabels:Record<string,string> = {
 };
 const defaults:InspectionPolicy = {
   baseKarsha:3,perHectareKarsha:1.5,perThousandKgKarsha:.25,
+  typeMultipliers:{orchard:1.15,farmland:1,greenhouse:1.3,nursery:1.1},historyMultiplier:1.05,varietyMultiplier:.02,
   maxActiveAssignments:4,nearestPoolSize:5,offerMinutes:90,
 };
 
@@ -91,6 +92,12 @@ export default function InspectionManagementView({token,onExpired}:{token:string
           <label>پاداش پایه (کارسا)<input type="number" min="0" step="0.01" value={policy.baseKarsha} onChange={e=>setPolicy({...policy,baseKarsha:Number(e.target.value)})}/></label>
           <label>پاداش هر هکتار<input type="number" min="0" step="0.01" value={policy.perHectareKarsha} onChange={e=>setPolicy({...policy,perHectareKarsha:Number(e.target.value)})}/></label>
           <label>پاداش هر ۱۰۰۰ کیلوگرم<input type="number" min="0" step="0.01" value={policy.perThousandKgKarsha} onChange={e=>setPolicy({...policy,perThousandKgKarsha:Number(e.target.value)})}/></label>
+          <label>ضریب سابقه تولید قبلی<input type="number" min="1" max="3" step="0.01" value={policy.historyMultiplier} onChange={e=>setPolicy({...policy,historyMultiplier:Number(e.target.value)})}/></label>
+          <label>ضریب هر رقم محصول<input type="number" min="0" max="0.5" step="0.01" value={policy.varietyMultiplier} onChange={e=>setPolicy({...policy,varietyMultiplier:Number(e.target.value)})}/></label>
+          <label>ضریب باغ<input type="number" min="0.5" max="3" step="0.01" value={policy.typeMultipliers.orchard} onChange={e=>setPolicy({...policy,typeMultipliers:{...policy.typeMultipliers,orchard:Number(e.target.value)}})}/></label>
+          <label>ضریب زمین زراعی<input type="number" min="0.5" max="3" step="0.01" value={policy.typeMultipliers.farmland} onChange={e=>setPolicy({...policy,typeMultipliers:{...policy.typeMultipliers,farmland:Number(e.target.value)}})}/></label>
+          <label>ضریب گلخانه<input type="number" min="0.5" max="3" step="0.01" value={policy.typeMultipliers.greenhouse} onChange={e=>setPolicy({...policy,typeMultipliers:{...policy.typeMultipliers,greenhouse:Number(e.target.value)}})}/></label>
+          <label>ضریب نهالستان<input type="number" min="0.5" max="3" step="0.01" value={policy.typeMultipliers.nursery} onChange={e=>setPolicy({...policy,typeMultipliers:{...policy.typeMultipliers,nursery:Number(e.target.value)}})}/></label>
           <label>حداکثر مأموریت فعال هر ناظر<input type="number" min="1" max="50" value={policy.maxActiveAssignments} onChange={e=>setPolicy({...policy,maxActiveAssignments:Number(e.target.value)})}/></label>
           <label>تعداد ناظران نزدیک در قرعه‌کشی<input type="number" min="1" max="10" value={policy.nearestPoolSize} onChange={e=>setPolicy({...policy,nearestPoolSize:Number(e.target.value)})}/></label>
           <label>مهلت پاسخ ناظر (دقیقه)<input type="number" min="5" max="1440" value={policy.offerMinutes} onChange={e=>setPolicy({...policy,offerMinutes:Number(e.target.value)})}/></label>

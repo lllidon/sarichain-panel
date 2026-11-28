@@ -331,6 +331,8 @@ export function adjustKarsha(token:string,fields:{memberId:string;direction:'cre
 
 export type InspectionPolicy = {
   baseKarsha:number; perHectareKarsha:number; perThousandKgKarsha:number;
+  typeMultipliers:{orchard:number;farmland:number;greenhouse:number;nursery:number};
+  historyMultiplier:number; varietyMultiplier:number;
   maxActiveAssignments:number; nearestPoolSize:number; offerMinutes:number;
 };
 export type InspectionApplication = {
@@ -357,7 +359,7 @@ export type InspectionManagementData = {
   applications:InspectionApplication[]; requests:InspectionRequest[]; reports:InspectionReport[];
 };
 export function readInspectionManagement(token:string,signal:AbortSignal) {
-  return request<InspectionManagementData>('/organization/inspections',{signal,headers:{Authorization:'Bearer '+token}});
+  return request<InspectionManagementData>('/organization/inspections/overview',{signal,headers:{Authorization:'Bearer '+token}});
 }
 export function readInspectionPolicy(token:string,signal:AbortSignal) {
   return request<InspectionPolicy>('/organization/inspections/policy',{signal,headers:{Authorization:'Bearer '+token}});
