@@ -1,0 +1,21 @@
+.inspection-admin-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+.inspection-admin-stats article{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:5px 12px;padding:16px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+.inspection-admin-stats svg{grid-row:span 2;color:var(--accent,#39875b);width:22px;height:22px}
+.inspection-admin-stats strong{font-size:1.35rem}.inspection-admin-stats span{font-size:.8rem;color:var(--muted)}
+.inspection-policy-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.inspection-policy-form label,.inspection-admin-note{display:grid;gap:7px;font-size:.84rem;font-weight:650}
+.inspection-policy-form input,.inspection-admin-note textarea{width:100%;min-width:0;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--foreground);padding:10px;font:inherit}
+.inspection-policy-form button{align-self:end;min-height:40px}
+.inspection-admin-list{display:grid;gap:13px}
+.inspection-admin-list .table-card{padding:16px}
+.inspection-admin-list .table-card>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.inspection-admin-list .table-card h3{margin:0 0 5px}.inspection-admin-list .table-card p{line-height:1.8}
+.inspection-admin-facts{display:flex;gap:12px 22px;flex-wrap:wrap;margin:12px 0;font-size:.85rem}
+.inspection-admin-note{margin:12px 0}
+.inspection-admin-list footer{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.inspection-admin-photos{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.inspection-admin-photos a{display:block;width:112px;height:88px;overflow:hidden;border-radius:10px;border:1px solid var(--border)}
+.inspection-admin-photos img{width:100%;height:100%;object-fit:cover}
+.inspection-report-copy p{margin:6px 0}
+@media(max-width:800px){.inspection-policy-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.inspection-admin-stats{grid-template-columns:1fr}.inspection-policy-form{grid-template-columns:1fr}}

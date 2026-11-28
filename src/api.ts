@@ -328,3 +328,46 @@ export function readKarshaLedger(token:string,memberId:string,page:number,signal
 export function adjustKarsha(token:string,fields:{memberId:string;direction:'credit'|'debit';amount:number;reason:string;idempotencyKey:string}) {
   return write<{balance:number;duplicate:boolean}>('/organization/karsha-adjustments','POST',token,fields);
 }
+
+export type InspectionPolicy = {
+  baseKarsha:number; perHectareKarsha:number; perThousandKgKarsha:number;
+  maxActiveAssignments:number; nearestPoolSize:number; offerMinutes:number;
+};
+export type InspectionApplication = {
+  memberId:string; specialties:string[]; baseLocation:{latitude:number;longitude:number};
+  serviceRadiusKm:number; biography?:string; submittedAt:string;
+  member?:{fullName?:string;phone?:string;organization?:string;city?:string;province?:string};
+};
+export type InspectionRequest = {
+  id:string; status:string; locationTitle:string; location?:{city?:string;province?:string};
+  acreage:number; inspectionType:string; cropType?:string; varieties?:string;
+  expectedProductionKg?:number|null; previousProductionKg?:number|null;
+  rewardKarsha:number; createdAt:string; producerMemberId?:string;
+  producer?:{fullName?:string;phone?:string;organization?:string};
+};
+export type InspectionReport = {
+  id:string; requestId:string; assignmentId:string; inspectorMemberId:string;
+  qualityScore:number; qualityGrade:string; observations:string;
+  pesticideAssessment?:string; fertilizerAssessment?:string; recommendations?:string;
+  estimatedYieldKg?:number|null; photoIds:string[];
+  photos?:Array<{id:string;dataUrl:string}>;
+  createdAt:string; inspector?:{fullName?:string;phone?:string;organization?:string};
+};
+export type InspectionManagementData = {
+  applications:InspectionApplication[]; requests:InspectionRequest[]; reports:InspectionReport[];
+};
+export function readInspectionManagement(token:string,signal:AbortSignal) {
+  return request<InspectionManagementData>('/organization/inspections',{signal,headers:{Authorization:'Bearer '+token}});
+}
+export function readInspectionPolicy(token:string,signal:AbortSignal) {
+  return request<InspectionPolicy>('/organization/inspections/policy',{signal,headers:{Authorization:'Bearer '+token}});
+}
+export function saveInspectionPolicy(token:string,fields:InspectionPolicy) {
+  return write<InspectionPolicy>('/organization/inspections/policy','PATCH',token,fields);
+}
+export function reviewInspectorApplication(token:string,memberId:string,status:'approved'|'rejected',note:string) {
+  return write<{memberId:string;status:string}>('/organization/inspections/applications/'+encodeURIComponent(memberId),'PATCH',token,{status,note});
+}
+export function reviewInspectionReport(token:string,id:string,status:'approved'|'rejected',note:string) {
+  return write<{id:string;status:string}>('/organization/inspections/requests/'+encodeURIComponent(id)+'/review','PATCH',token,{status,note});
+}
