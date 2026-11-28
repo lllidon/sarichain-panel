@@ -341,7 +341,7 @@ export type InspectionApplication = {
   member?:{fullName?:string;phone?:string;organization?:string;city?:string;province?:string};
 };
 export type InspectionRequest = {
-  id:string; status:string; locationTitle:string; location?:{city?:string;province?:string};
+  id:string; status:string; locationTitle:string; location?:{city?:string;province?:string;latitude?:number;longitude?:number};
   acreage:number; inspectionType:string; cropType?:string; varieties?:string;
   expectedProductionKg?:number|null; previousProductionKg?:number|null;
   rewardKarsha:number; createdAt:string; producerMemberId?:string;

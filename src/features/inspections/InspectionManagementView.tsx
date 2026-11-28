@@ -136,7 +136,8 @@ export default function InspectionManagementView({token,onExpired}:{token:string
         <div className="transport-admin-section-heading"><div><h2><MapPinned size={18}/> درخواست‌های ثبت‌شده</h2><p>آخرین وضعیت مأموریت‌های نظارتی تولیدکنندگان</p></div></div>
         {!data?.requests.length?<div className="table-state">درخواستی ثبت نشده است.</div>:
           <div className="table-scroll"><table className="data-table"><thead><tr><th>محل تولید</th><th>تولیدکننده</th><th>مساحت</th><th>پاداش</th><th>وضعیت</th><th>تاریخ ثبت</th></tr></thead><tbody>
-            {data.requests.map(item=><tr key={item.id}><td>{item.locationTitle}<small>{item.cropType||item.inspectionType}</small></td><td>{item.producer?.fullName||'—'}<small>{item.producer?.phone||''}</small></td><td>{number.format(item.acreage)} هکتار</td><td>{number.format(item.rewardKarsha)} کارسا</td><td>{statusLabels[item.status]||item.status}</td><td>{dates.format(new Date(item.createdAt))}</td></tr>)}
+            {data.requests.map(item=><tr key={item.id}><td>{item.locationTitle}<small>{item.cropType||item.inspectionType} · {[item.location?.city,item.location?.province].filter(Boolean).join('، ')}</small>
+              {item.location?.latitude!=null&&item.location?.longitude!=null&&<a href={'https://www.openstreetmap.org/?mlat='+item.location.latitude+'&mlon='+item.location.longitude+'#map=15/'+item.location.latitude+'/'+item.location.longitude} target="_blank" rel="noreferrer">نمایش روی نقشه</a>}</td><td>{item.producer?.fullName||'—'}<small>{item.producer?.phone||''}</small></td><td>{number.format(item.acreage)} هکتار</td><td>{number.format(item.rewardKarsha)} کارسا</td><td>{statusLabels[item.status]||item.status}</td><td>{dates.format(new Date(item.createdAt))}</td></tr>)}
           </tbody></table></div>}
       </section>
     </>}
