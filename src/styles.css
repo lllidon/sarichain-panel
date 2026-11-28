@@ -99,8 +99,46 @@ td svg { vertical-align: middle; color: var(--muted); }
 .status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .status.active { background: var(--accent); color: var(--green); }
 .table-state { min-height: 200px; display: grid; gap: 8px; align-content: center; justify-items: center; padding: 20px; color: var(--muted); }
-.pagination { border-top: 1px solid var(--line); padding: 10px; display: flex; gap: 10px; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; }
-.pagination button { display: inline-flex; align-items: center; gap: 2px; }
+.pagination {
+  border-top: 1px solid var(--line);
+  padding: 14px clamp(8px, 2vw, 18px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 12px;
+  direction: rtl;
+}
+.pagination-pages { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
+.pagination button {
+  min-width: 42px;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--green);
+  font-size: 13px;
+  line-height: 1;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.pagination button:hover:not(:disabled):not([aria-current="page"]) { background: var(--surface-alt); border-color: var(--green); }
+.pagination .pagination-page { width: 42px; padding-inline: 0; font-variant-numeric: tabular-nums; }
+.pagination .pagination-page[aria-current="page"] {
+  border-color: var(--green);
+  background: var(--green);
+  color: var(--surface);
+  font-weight: 700;
+  box-shadow: 0 2px 5px var(--shadow);
+}
+.pagination .pagination-step { min-width: 82px; padding-inline: 12px; }
+.pagination .pagination-ellipsis { min-width: 20px; display: inline-grid; place-items: center; color: var(--muted); user-select: none; }
 .login-page { display: grid; place-items: center; min-height: calc(100dvh - 68px); padding: 18px; }
 .login-card { width: min(100%, 420px); padding: clamp(18px, 5vw, 28px); border: 1px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: 0 8px 28px var(--shadow); }
 .login-card h1 { font-size: 22px; margin-top: 12px; }
@@ -243,6 +281,11 @@ td svg { vertical-align: middle; color: var(--muted); }
   .compact-actions .row-actions button svg { width: 13px; height: 13px; }
   .compact-actions .icon-button { width: 28px; height: 28px; }
   .directory-filters input { flex: 1 1 90px; width: auto; min-width: 0; font-size: 11px; }
+  .pagination { gap: 5px; padding: 10px 6px; }
+  .pagination-pages { gap: 4px; }
+  .pagination button { min-width: 36px; min-height: 36px; border-radius: 8px; font-size: 12px; }
+  .pagination .pagination-page { width: 36px; }
+  .pagination .pagination-step { min-width: 70px; padding-inline: 8px; }
 }
 
 @media (max-width: 375px) {
