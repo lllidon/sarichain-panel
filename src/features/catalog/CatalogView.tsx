@@ -6,6 +6,15 @@ import { type CatalogItem, type CatalogPage, type Section, number, sections } fr
 import CatalogEditor, { type EditorMode } from './CatalogEditor';
 import { demoPage } from './demo';
 
+type PaginationItem = number | 'ellipsis-start' | 'ellipsis-end';
+
+function paginationItems(current: number, total: number): PaginationItem[] {
+  if (total <= 15) return Array.from({ length: total }, (_, index) => index + 1);
+  if (current <= 5) return [...Array.from({ length: 7 }, (_, index) => index + 1), 'ellipsis-end', total];
+  if (current >= total - 4) return [1, 'ellipsis-start', ...Array.from({ length: 7 }, (_, index) => total - 6 + index)];
+  return [1, 'ellipsis-start', current - 1, current, current + 1, 'ellipsis-end', total];
+}
+
 const headings = {
   products: ['محصول', 'SKU / شناسه حسابداری', 'دسته‌بندی / برند', 'نوع', 'بازه قیمت (کارسا)', 'وضعیت'],
   categories: ['دسته‌بندی', 'نشانی', 'والد', 'سطح', 'وضعیت'],
@@ -227,9 +236,26 @@ export default function CatalogView({ section, token, canEdit, onExpired }: { se
         )}
         {result && pages > 1 && (
           <nav className="pagination" aria-label="صفحه‌بندی">
-            <button type="button" disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronRight size={15} /> قبلی</button>
-            <span>صفحه {number.format(page)} از {number.format(pages)}</span>
-            <button type="button" disabled={page >= pages} onClick={() => setPage(page + 1)}>بعدی <ChevronLeft size={15} /></button>
+            <button className="pagination-step" type="button" disabled={page <= 1}
+              aria-label="رفتن به صفحه قبلی" onClick={() => setPage(current => Math.max(1, current - 1))}>
+              <ChevronRight size={16} /> قبلی
+            </button>
+            <div className="pagination-pages" aria-label="شماره صفحات">
+              {paginationItems(page, pages).map((item, index) => typeof item === 'number' ? (
+                <button key={item} className="pagination-page" type="button"
+                  aria-label={`رفتن به صفحه ${number.format(item)}`}
+                  aria-current={page === item ? 'page' : undefined}
+                  onClick={() => setPage(item)}>
+                  {number.format(item)}
+                </button>
+              ) : (
+                <span key={item} className="pagination-ellipsis" aria-hidden="true">…</span>
+              ))}
+            </div>
+            <button className="pagination-step" type="button" disabled={page >= pages}
+              aria-label="رفتن به صفحه بعدی" onClick={() => setPage(current => Math.min(pages, current + 1))}>
+              بعدی <ChevronLeft size={16} />
+            </button>
           </nav>
         )}
       </section>
