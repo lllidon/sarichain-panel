@@ -353,6 +353,7 @@ export type InspectionReport = {
   pesticideAssessment?:string; fertilizerAssessment?:string; recommendations?:string;
   estimatedYieldKg?:number|null; photoIds:string[];
   photos?:Array<{id:string;dataUrl:string}>;
+  request?:{locationTitle?:string;cropType?:string;acreage?:number;producer?:{fullName?:string}};
   createdAt:string; inspector?:{fullName?:string;phone?:string;organization?:string};
 };
 export type InspectionManagementData = {
