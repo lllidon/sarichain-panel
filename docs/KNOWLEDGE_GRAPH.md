@@ -69,6 +69,13 @@ flowchart TD
 - `client`: navigation is forced to orders.
 - Backend guards remain authoritative; hiding a UI link is not an authorization boundary.
 
+## Catalog pagination
+
+- `src/features/catalog/CatalogView.tsx` owns the catalog list state (`page`, search, section) and renders numbered pagination for products, categories, and brands.
+- The pager includes previous/next controls, a highlighted current page using `aria-current="page"`, direct page selection, and ellipses when the total exceeds 15 pages. Up to 15 pages are shown as individual page buttons.
+- `src/styles.css` styles the pagination with the panel's green theme tokens, consistent button sizing, hover/focus states, and responsive wrapping for smaller screens.
+- When the page, search term, or catalog section changes, `CatalogView` fetches the corresponding API page; changing search resets to page 1. Keep the page-window calculation and accessibility labels aligned with this state.
+
 ## Change-impact guide
 - Navigation, URL hash sections, session and theme: `src/App.tsx`.
 - HTTP routes, request/response types and token headers: `src/api.ts`.
